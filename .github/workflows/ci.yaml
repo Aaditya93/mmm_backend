@@ -23,8 +23,8 @@ jobs:
           cp known_hosts ~/.ssh/known_hosts
       - name: Run deployment script
         run: |
-          ssh -i keyfile -o StrictHostKeyChecking=no ubuntu@ec2-54-179-188-93.ap-southeast-1.compute.amazonaws.com << 'EOF'
-            cd staff-management-4
+          ssh -i keyfile -o StrictHostKeyChecking=no ubuntu@ec2-43-204-218-207.ap-south-1.compute.amazonaws.com << 'EOF'
+            cd mmm_backend
             git pull origin main
             npm install
             sudo pm2 delete all || true

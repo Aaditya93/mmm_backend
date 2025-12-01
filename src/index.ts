@@ -22,7 +22,12 @@ const app = express();
 const PORT = Number(process.env.PORT) || 3001;
 const HTTPS_PORT = Number(process.env.HTTPS_PORT) || 443;
 
-app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+app.use(
+  cors({
+    origin: ["http://localhost:3000", "https://api.makemypackages.com"],
+    credentials: true,
+  })
+);
 
 // Middleware
 app.use(express.json({ limit: "10mb" }));
@@ -65,7 +70,7 @@ if (useSSL) {
   try {
     // Production SSL certificate paths (for Let's Encrypt)
     const sslDir =
-      process.env.SSL_DIR || "/etc/letsencrypt/live/makemypackages.com";
+      process.env.SSL_DIR || "/etc/letsencrypt/live/api.makemypackages.com";
     const keyPath =
       process.env.SSL_KEY_PATH || path.join(sslDir, "privkey.pem");
     const certPath =
@@ -79,10 +84,10 @@ if (useSSL) {
         console.log("🔧 To get Let's Encrypt certificates, run:");
         console.log("   sudo apt update && sudo apt install certbot");
         console.log(
-          "   sudo certbot certonly --standalone -d makemypackages.com"
+          "   sudo certbot certonly --standalone -d api.makemypackages.com"
         );
         console.log(
-          "   sudo chown -R $USER:$USER /etc/letsencrypt/live/makemypackages.com/"
+          "   sudo chown -R $USER:$USER /etc/letsencrypt/live/api.makemypackages.com/"
         );
         console.log(
           "   Or set SSL_KEY_PATH and SSL_CERT_PATH environment variables"
@@ -100,7 +105,7 @@ if (useSSL) {
           fs.mkdirSync(sslDir, { recursive: true });
         }
 
-        const openSSLCommand = `openssl req -x509 -newkey rsa:4096 -keyout "${keyPath}" -out "${certPath}" -days 365 -nodes -subj "/C=US/ST=State/L=City/O=Bukxe/CN=bukxe.com"`;
+        const openSSLCommand = `openssl req -x509 -newkey rsa:4096 -keyout "${keyPath}" -out "${certPath}" -days 365 -nodes -subj "/C=US/ST=State/L=City/O=/CN=api.makemypackages.com"`;
 
         try {
           execSync(openSSLCommand, { stdio: "inherit" });
@@ -120,13 +125,13 @@ if (useSSL) {
       cert: fs.readFileSync(certPath),
     };
 
-    // Start HTTPS server
-    https.createServer(sslOptions, app).listen(HTTPS_PORT, "0.0.0.0", () => {
+    // Start HTTPS server — bind to all addresses (accept IPv4 & IPv6)
+    https.createServer(sslOptions, app).listen(HTTPS_PORT, () => {
       console.log(`✅ HTTPS Server running on port ${HTTPS_PORT}`);
       console.log(
         `🔒 Secure MakemyPackages Email Scanner Server accessible at:`
       );
-      console.log(`   - makemypackages.com`);
+      console.log(`   - api.makemypackages.com`);
       if (!isProduction) {
         console.log(`   - https://localhost:${HTTPS_PORT}`);
       }
@@ -145,10 +150,13 @@ if (useSSL) {
     if (isProduction) {
       const httpRedirectApp = express();
       httpRedirectApp.use((req, res) => {
-        res.redirect(301, `https://${req.headers.host}${req.url}`);
+        const host = (req.headers.host || "").split(":")[0];
+        const targetPort =
+          HTTPS_PORT && HTTPS_PORT !== 443 ? `:${HTTPS_PORT}` : "";
+        res.redirect(301, `https://${host}${targetPort}${req.url}`);
       });
 
-      httpRedirectApp.listen(PORT, "0.0.0.0", () => {
+      httpRedirectApp.listen(PORT, () => {
         console.log(`✅ HTTP Redirect Server running on port ${PORT}`);
         console.log(`🔄 Redirecting HTTP traffic to HTTPS`);
       });
@@ -172,7 +180,7 @@ function startHttpServer() {
     console.log(`✅ HTTP Server running on port ${PORT}`);
     console.log(`🌐 MakemyPackages Email Scanner Server accessible at:`);
     console.log(`   - http://localhost:${PORT}`);
-    console.log(`   - http://makemypackages.com:${PORT}`);
+    console.log(`   - http://api.makemypackages.com:${PORT}`);
     console.log(`📊 API Endpoints:`);
     console.log(`   - GET  /health (health check)`);
   });
