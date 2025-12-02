@@ -12,7 +12,11 @@ const app = express();
 const PORT = Number(process.env.PORT) || 3001;
 const HTTPS_PORT = Number(process.env.HTTPS_PORT) || 443;
 app.use(cors({
-    origin: ["http://localhost:3000", "https://api.makemypackages.com"],
+    origin: [
+        "http://localhost:3000",
+        "https://api.makemypackages.com",
+        "https://main.d3cl9zxj5czhv3.amplifyapp.com",
+    ],
     credentials: true,
 }));
 // Middleware
