@@ -8,6 +8,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: development # <- ensure job uses the 'development' environment where you added the secret
 
     steps:
       - name: Checkout code
@@ -17,10 +18,19 @@ jobs:
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
-          echo "$SSH_PRIVATE_KEY" > keyfile
+          # fail early if secret not present
+          if [ -z "$SSH_PRIVATE_KEY" ]; then
+            echo "ERROR: SSH_PRIVATE_KEY is empty or not available in this job."
+            exit 1
+          fi
+          # write key safely (preserve newlines, strip CRLF)
+          printf '%s\n' "$SSH_PRIVATE_KEY" | sed 's/\r$//' > keyfile
           chmod 600 keyfile
           mkdir -p ~/.ssh
-          cp known_hosts ~/.ssh/known_hosts
+          cp known_hosts ~/.ssh/known_hosts || true
+          # verify key was written by printing its fingerprint (safe: doesn't reveal private key)
+          ssh-keygen -y -f keyfile > keyfile.pub
+          ssh-keygen -lf keyfile.pub -E sha256
       - name: Run deployment script
         run: |
           ssh -i keyfile -o StrictHostKeyChecking=no ubuntu@ec2-43-204-218-207.ap-south-1.compute.amazonaws.com << 'EOF'
