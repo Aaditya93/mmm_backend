@@ -8,7 +8,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: development # <- ensure job uses the 'development' environment where you added the secret
+    environment: deployment
 
     steps:
       - name: Checkout code
