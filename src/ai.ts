@@ -475,6 +475,12 @@ function createItineraryPrompt(): string {
   return `
     Extract the detailed itinerary and logistical information from the provided PDF.
     Focus on the structured details of the trip.
+     **JSON FORMATTING RULES (CRITICAL):**
+    - Return ONLY valid JSON, no markdown code blocks
+    - Use double quotes for all strings and property names
+    - Escape special characters in strings: use \\n for newlines, \\" for quotes
+    - NO trailing commas after the last item in arrays or objects
+    - NO comments in the JSON
 
     **CRITICAL INSTRUCTIONS:**
     1.  **ITINERARY:** For each day, provide a detailed 100+ word description, meals, and activities.
@@ -579,6 +585,13 @@ function createItineraryPrompt(): string {
 function createPricingPrompt(): string {
   return `
     Extract the pricing, dates, and flight information from the provided PDF.
+    
+     **JSON FORMATTING RULES (CRITICAL):**
+    - Return ONLY valid JSON, no markdown code blocks
+    - Use double quotes for all strings and property names
+    - Escape special characters in strings: use \\n for newlines, \\" for quotes
+    - NO trailing commas after the last item in arrays or objects
+    - NO comments in the JSON
 
     **CRITICAL INSTRUCTIONS:**
     1.  **PRICING:** Extract the available price information for Adult and Child Don't price again in details.
