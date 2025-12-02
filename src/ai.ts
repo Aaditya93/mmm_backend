@@ -422,6 +422,13 @@ function createMarketingPrompt(): string {
     Extract the creative marketing information for a travel package from the provided PDF.
     Focus on creating high-converting content.
 
+    **JSON FORMATTING RULES (CRITICAL):**
+    - Return ONLY valid JSON, no markdown code blocks
+    - Use double quotes for all strings and property names
+    - Escape special characters in strings: use \\n for newlines, \\" for quotes
+    - NO trailing commas after the last item in arrays or objects
+    - NO comments in the JSON
+
     **CRITICAL INSTRUCTIONS:**
     1.  **TITLE:** Create a magnetic, SEO-optimized title using power words.
     2.  **DESCRIPTION:** Write a captivating 200+ word story-driven description.
@@ -1117,10 +1124,10 @@ export async function processPackagePdfWithProgress(
 
     // Save to database
     onProgress("database", "Saving package to database...", 92);
-    savePackageData(
-      packageData,
-      "output_" + path.basename(localPath, path.extname(localPath)) + ".json"
-    );
+    // savePackageData(
+    //   packageData,
+    //   "output_" + path.basename(localPath, path.extname(localPath)) + ".json"
+    // );
     await savePackageToDb(packageId, packageData);
     onProgress("database", "Package saved to database", 98);
 

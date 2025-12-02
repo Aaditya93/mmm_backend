@@ -28,7 +28,7 @@ jobs:
             git pull origin main
             npm install
             sudo pm2 delete all || true
-            sudo pm2 start ecosystem.config.js --env production
+            sudo pm2 start dist/index.js --name mmm_backend
           EOF
 
       - name: Clean up
