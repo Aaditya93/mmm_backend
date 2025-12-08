@@ -595,7 +595,10 @@ function createPricingPrompt(): string {
     - NO comments in the JSON
 
     **CRITICAL INSTRUCTIONS:**
-    1.  **PRICING:** Extract the available price information for Adult and Child Don't price again in details.IF type is not specified, assume Adult.
+     1.  **PRICING:** Extract the available price information for Adult and Child. EVERY price entry must include a \"type\" field.
+        - If the source text does NOT explicitly indicate a child fare (words like: child, children, kid, kids, infant, toddler, "below X years", "under X years", "child with bed"), you MUST set \"type\": \"Adult\" (default to Adult when ambiguous).
+        - Only set \"type\": \"Child\" when the PDF text clearly indicates a child-specific price.
+        - Preserve any qualifier in \"details\" (e.g., age ranges, bed info).
         - **CURRENCY:** Use ONLY ISO 4217 three-letter currency codes.
     2.  **DATES:** Extract start date, end date (DD-MM-YYYY) and booking deadline (MM/DD/YYYY).
     3.  **DURATION:** Extract days and nights.
