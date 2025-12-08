@@ -226,7 +226,7 @@ function getPricingSchema() {
                         type: {
                             type: "string",
                             enum: ["Adult", "Child"],
-                            description: "Passenger type for this price entry",
+                            description: "Passenger type for this price entry. If type is not specified, assume Adult.",
                         },
                         currency: {
                             type: "string",
@@ -486,7 +486,7 @@ function createPricingPrompt() {
     - NO comments in the JSON
 
     **CRITICAL INSTRUCTIONS:**
-    1.  **PRICING:** Extract the available price information for Adult and Child Don't price again in details.
+    1.  **PRICING:** Extract the available price information for Adult and Child Don't price again in details.IF type is not specified, assume Adult.
         - **CURRENCY:** Use ONLY ISO 4217 three-letter currency codes.
     2.  **DATES:** Extract start date, end date (DD-MM-YYYY) and booking deadline (MM/DD/YYYY).
     3.  **DURATION:** Extract days and nights.
