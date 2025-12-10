@@ -8,12 +8,26 @@
  */
 import mongoose from "mongoose";
 
+export interface IHotelStay {
+  place: string;
+  hotelName: string;
+  roomCategory: string;
+  nights: number;
+  checkIn: Date;
+  checkOut: Date;
+  bookingNumber: string;
+  adults: number;
+  children: number;
+  mealPlan: string;
+}
+
 export interface IItinerary {
   day: number;
   title: string;
   description: string;
   meals: string[];
-  activities: string[];
+
+  activityDetails: IActivity[];
 }
 
 export interface IAccommodation {
@@ -34,6 +48,11 @@ export interface ITransportation {
 export interface ITravelers {
   adults: number;
   children: number;
+}
+
+export interface IActivity {
+  name: string;
+  description: string;
 }
 
 export interface IFlight {
@@ -94,12 +113,15 @@ export interface IPackage {
   bookingDeadline: Date;
   imageUrl: [string];
   audioUrl: string;
+  hotelStays: IHotelStay[];
+  hotelStaysLink: string;
   price: {
     threeStar: number;
     fourStar: number;
     fiveStar: number;
     currency: string;
   };
+  currency: string;
   priceData: {
     price: number;
     type: "Adult" | "Child";
@@ -115,17 +137,33 @@ export interface IPackage {
   defaultCurrency: string;
   packageUrl: string;
   isProcessed: boolean;
+  createdBy: mongoose.Types.ObjectId | string;
 
   createdAt: Date;
   updatedAt: Date;
 }
+
+// ...existing code...
+const hotelStaySchema = new mongoose.Schema<IHotelStay>({
+  place: { type: String },
+  hotelName: { type: String },
+  roomCategory: { type: String },
+  nights: { type: Number },
+  checkIn: { type: Date },
+  checkOut: { type: Date },
+  bookingNumber: { type: String },
+  adults: { type: Number },
+  children: { type: Number },
+  mealPlan: { type: String },
+});
+// ...existing code...
 
 const itinerarySchema = new mongoose.Schema<IItinerary>({
   day: { type: Number },
   title: { type: String },
   description: { type: String },
   meals: { type: [String] },
-  activities: { type: [String] },
+  activityDetails: { type: [{ name: String, description: String }] }, // new field
 });
 
 const accommodationSchema = new mongoose.Schema<IAccommodation>({
@@ -209,6 +247,8 @@ const packageSchema = new mongoose.Schema<IPackage>(
     bookingDeadline: { type: Date },
     packageUrl: { type: String },
     isProcessed: { type: Boolean },
+    hotelStays: { type: [hotelStaySchema] },
+    hotelStaysLink: { type: String },
     priceData: [
       {
         price: { type: Number },
@@ -224,6 +264,7 @@ const packageSchema = new mongoose.Schema<IPackage>(
       fiveStar: { type: Number },
       currency: { type: String },
     },
+    currency: { type: String },
     visa: [
       {
         price: { type: Number },
@@ -233,6 +274,7 @@ const packageSchema = new mongoose.Schema<IPackage>(
       },
     ],
     defaultCurrency: { type: String },
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   },
   { timestamps: true }
 );

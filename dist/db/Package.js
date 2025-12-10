@@ -7,12 +7,26 @@
  * @returns {mongoose.Model<IPackage>} The Package model instance.
  */
 import mongoose from "mongoose";
+// ...existing code...
+const hotelStaySchema = new mongoose.Schema({
+    place: { type: String },
+    hotelName: { type: String },
+    roomCategory: { type: String },
+    nights: { type: Number },
+    checkIn: { type: Date },
+    checkOut: { type: Date },
+    bookingNumber: { type: String },
+    adults: { type: Number },
+    children: { type: Number },
+    mealPlan: { type: String },
+});
+// ...existing code...
 const itinerarySchema = new mongoose.Schema({
     day: { type: Number },
     title: { type: String },
     description: { type: String },
     meals: { type: [String] },
-    activities: { type: [String] },
+    activityDetails: { type: [{ name: String, description: String }] }, // new field
 });
 const accommodationSchema = new mongoose.Schema({
     name: { type: String },
@@ -87,6 +101,8 @@ const packageSchema = new mongoose.Schema({
     bookingDeadline: { type: Date },
     packageUrl: { type: String },
     isProcessed: { type: Boolean },
+    hotelStays: { type: [hotelStaySchema] },
+    hotelStaysLink: { type: String },
     priceData: [
         {
             price: { type: Number },
@@ -101,6 +117,7 @@ const packageSchema = new mongoose.Schema({
         fiveStar: { type: Number },
         currency: { type: String },
     },
+    currency: { type: String },
     visa: [
         {
             price: { type: Number },
@@ -110,6 +127,7 @@ const packageSchema = new mongoose.Schema({
         },
     ],
     defaultCurrency: { type: String },
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
 }, { timestamps: true });
 const Package = mongoose.models.Package || mongoose.model("Package", packageSchema);
 export default Package;

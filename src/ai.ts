@@ -178,7 +178,7 @@ function getItinerarySchema(): any {
       "exclusions",
       "notes",
       "locations",
-      "activities",
+      "activityDetails",
     ],
     properties: {
       locations: {
@@ -212,7 +212,41 @@ function getItinerarySchema(): any {
               description:
                 "List of meals included for the day, e.g., ['Breakfast', 'Dinner'].",
             },
-            activities: { type: "array", items: { type: "string" } },
+            activityDetails: {
+              type: "array",
+              items: {
+                type: "object",
+                required: ["day", "activityDetails"],
+                properties: {
+                  day: { type: "number" },
+                  activityDetails: {
+                    type: "array",
+                    description:
+                      "Ordered roughly as in itinerary. Include only MAIN events (tours, attractions, safari, etc.). Skip non-main items listed in the schema description.",
+                    items: {
+                      type: "object",
+                      required: ["name", "description"],
+                      properties: {
+                        name: {
+                          type: "string",
+                          minLength: 1,
+                          description:
+                            "Activity name in Title Case (trimmed). Examples: 'Water Park', 'Temple Visit'.",
+                          pattern: "^[A-Z][A-Za-z0-9'\\-\\s:,&()]+$",
+                        },
+                        description: {
+                          type: "string",
+                          minLength: 50,
+                          maxLength: 600,
+                          description:
+                            "One paragraph (3-4 short sentences) describing what guests can expect. No markdown, no lists, no extra quoting. Keep concise.",
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
           },
         },
       },
@@ -484,28 +518,33 @@ function createItineraryPrompt(): string {
     - NO comments in the JSON
 
     **CRITICAL INSTRUCTIONS:**
-    1.  **ITINERARY:** For each day, provide a detailed 100+ word description, meals, and activities.
+    1.  **ITINERARY:** For each day, provide a detailed 100+ word description, meals, and activities. Extract main daily events (tours, attractions, parks, temple visits, safaris, etc.), skipping non‑main/operational items (leisure, free time, meals, transfers, flights). For each activity return a 3–4 line paragraph, with Title Case trimmed names kept in the itinerary’s original order.
     2.  **ACCOMMODATION:** Extract accommodation details (name, stars, roomType, details). Don't repeat hotel info if same for multiple nights.
     3.  **TRANSPORTATION:** Mention all transportation items found in the PDF. Don't Include flight details here. Include whether the transportation is shared or private.
     4.  **INCLUSIONS/EXCLUSIONS/NOTES:** List all items clearly.
-    5.  **LOCATIONS & ACTIVITIES:** List all locations visited and activities performed.
+    5.  **LOCATIONS & ACTIVITIES:** List all locations visited and activities performed. list only top 10-15 activities.
 
     **WRITING TONE:** Clear, accurate, and informative.
     
     **STRICTLY ADHERE** to the JSON schema.
       **EXAMPLE OUTPUT:**
-    \`\`\`json
+
     {
       "itinerary": [
+
         {
           "day": 1,
           "title": "Arrival in Bali",
           "description": "Upon arrival at Bali airport, you will be greeted by our representative. You will then be transferred to your hotel to settle in and relax after your journey. The remainder of the day is at your leisure, allowing you to explore the immediate surroundings of your accommodation or simply unwind and prepare for the adventures that await you in the coming days. This initial transfer ensures a smooth start to your Bali experience, offering a comfortable and hassle-free transition to your chosen hotel.",
           "meals": [],
-          "activities": [
-            "Arrival at Bali airport",
-            "Meet and greet by representative",
-            "Transfer to hotel"
+            "activityDetails": [
+            {
+              "name": "Bai Dinh Pagoda Visit",
+              "description": "Visit the sprawling Bai Dinh Pagoda complex, one of Southeast Asia's largest Buddhist sites. Wander among hundreds of ornate statues and step inside the impressive halls to learn about local spiritual traditions. Take time to enjoy panoramic views from the temple terraces and observe the peaceful monastic atmosphere."
+            },
+              "name": "Cycling in Trang An Village",
+              "description": "Cycle gentle lanes through rice paddies and riverside villages to experience authentic rural life. Pause to see traditional homes, local farmers at work, and scenic limestone karst backdrops. The easy-paced route is family-friendly and ideal for photography and casual exploration."
+            }
           ]
         },
         {
@@ -513,14 +552,23 @@ function createItineraryPrompt(): string {
           "title": "Tegenungan Waterfall & Kintamani Tour",
           "description": "Embark on a full-day tour that begins with a visit to the majestic Tegenungan Waterfall, where you can marvel at the cascading waters and lush surroundings. Next, journey to Kintamani, renowned for its breathtaking volcano views. Immerse yourself in the world of coffee at an Agrotourism plantation, followed by an exhilarating experience at Alas Harum Bali Swing. Explore the historical Ubud Palace and delve into the artistic heritage of Celuk Mas village. Conclude your day with a visit to Bidadari Batik, where you can admire and purchase traditional Balinese textiles.",
           "meals": ["Breakfast"],
-          "activities": [
-            "Tegenungan Waterfall",
-            "Kintamani volcano view point",
-            "Agrotourism (coffee plantations)",
-            "Alas Harum Bali Swing (entrance + extreme swing)",
-            "Ubud Palace",
-            "Celuk Mas village",
-            "Bidadari Batik"
+          "activityDetails": [
+            {
+              "name": "Tegenungan Waterfall Visit",
+              "description": "Marvel at the lush surroundings and thundering cascade of Tegenungan Waterfall, with time for photos and short walks along the viewing areas. Enjoy the refreshing mist and vantage points that highlight the waterfall's dramatic drop. The site offers easy access and short walking paths suitable for most travelers."
+            },
+            {
+              "name": "Kintamani Volcano Viewpoint",
+              "description": "Admire sweeping vistas of Mt. Batur and its caldera lake from elevated viewpoints. Sample locally roasted coffee while taking in the volcanic landscape and crisp mountain air. Guided stops provide historical and geological context about the region."
+            },
+            {
+              "name": "Alas Harum Bali Swing",
+              "description": "Feel the thrill of the iconic Bali swing above rice terraces and jungle valleys with safety briefings and photo opportunities. Enjoy sweeping views and a short walk through landscaped gardens. The experience is suitable for most guests and includes optional photography packages."
+            },
+            {
+              "name": "Ubud Palace & Celuk Village",
+              "description": "Explore the ornate Ubud Palace grounds and learn about royal Balinese architecture and cultural performances. Visit Celuk Village to observe master artisans crafting gold and silver jewelry using traditional techniques. Opportunity to shop for handcrafted souvenirs and watch live demonstrations."
+            }
           ]
         }
       ],
@@ -684,7 +732,7 @@ async function executeExtraction(
   schema?: any
 ): Promise<[any]> {
   const genAI = initializeGeminiClient();
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
 
   const genOptions: any = {
     temperature: generationConfig.temperature,

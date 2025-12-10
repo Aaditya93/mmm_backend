@@ -7,7 +7,63 @@
  * @returns {mongoose.Model<IQuery>} The Query model instance.
  */
 import mongoose from "mongoose";
+const reviewSchema = new mongoose.Schema({
+    reviewer: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Customer", // or "Customer" based on your design
+    },
+    rating: { type: Number },
+    text: { type: String },
+    images: [{ type: String }],
+}, { timestamps: true });
+const moneySchema = new mongoose.Schema({
+    amount: { type: Number, default: 0 },
+    currency: {
+        type: String,
+    },
+}, { _id: false });
+export const QueryPaymentDataSchema = new mongoose.Schema({
+    destination: { type: String },
+    buy: {
+        type: moneySchema,
+    },
+    sell: {
+        type: moneySchema,
+    },
+    netMargin: {
+        type: moneySchema,
+    },
+    advance: {
+        type: moneySchema,
+    },
+    paidToVendor: {
+        type: moneySchema,
+    },
+    pendingOnArrival: {
+        type: moneySchema,
+    },
+    paymentDone: { type: Boolean, default: false },
+    tripEnd: { type: Boolean, default: false },
+}, { timestamps: true });
+const paymentRequestSchema = new mongoose.Schema({
+    packageId: { type: String },
+    amount: { type: Number },
+    currency: { type: String },
+    customerEmail: { type: String },
+    customerName: { type: String },
+    customerPhone: { type: String },
+    isPaid: { type: Boolean },
+    paymentId: { type: String },
+});
 const paymentSchema = new mongoose.Schema({
+    paymentId: { type: String },
+    packageId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Package",
+    },
+    status: { type: String },
+    customerEmail: { type: String },
+    customerName: { type: String },
     amount: { type: Number },
     currency: { type: String },
     paymentDate: { type: Date, default: Date.now },
@@ -29,9 +85,16 @@ const querySchema = new mongoose.Schema({
             ref: "Package",
         },
     ],
+    paymentRequests: [paymentRequestSchema],
+    paymentData: { type: QueryPaymentDataSchema },
     primaryPackage: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Package",
+    },
+    reviews: [reviewSchema],
+    primaryCustomer: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Customer",
     },
     payments: [paymentSchema],
     isBooked: {
