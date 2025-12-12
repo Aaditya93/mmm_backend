@@ -13,15 +13,23 @@ const app = express();
 const PORT = Number(process.env.PORT) || 3001;
 const HTTPS_PORT = Number(process.env.HTTPS_PORT) || 443;
 app.use(cors({
-    origin: [
-        "http://localhost:3000",
-        "https://api.makemypackages.com",
-        "https://main.d3cl9zxj5czhv3.amplifyapp.com",
-        "https://www.makemypackages.com",
-        "https://makemypackages.com",
-    ],
+    origin: (origin, callback) => {
+        const allowed = [
+            "http://localhost:3000",
+            "https://api.makemypackages.com",
+            "https://main.d3cl9zxj5czhv3.amplifyapp.com",
+            "https://www.makemypackages.com",
+            "https://makemypackages.com",
+        ];
+        if (!origin)
+            return callback(null, true); // allow non-browser requests
+        return callback(null, allowed.includes(origin));
+    },
     credentials: true,
+    optionsSuccessStatus: 200,
 }));
+// ensure preflight is handled
+app.options("*", cors());
 // Middleware
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
