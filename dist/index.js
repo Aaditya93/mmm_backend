@@ -12,16 +12,34 @@ import { generatePdfController } from "./pdf.js";
 const app = express();
 const PORT = Number(process.env.PORT) || 3001;
 const HTTPS_PORT = Number(process.env.HTTPS_PORT) || 443;
-app.use(cors({
-    origin: [
-        "http://localhost:3000",
-        "https://api.makemypackages.com",
-        "https://main.d3cl9zxj5czhv3.amplifyapp.com",
-        "https://www.makemypackages.com",
-        "https://makemypackages.com",
-    ],
+// Use this instead of the array form
+const allowedOrigins = new Set([
+    "http://localhost:3000",
+    "https://api.makemypackages.com",
+    "https://main.d3cl9zxj5czhv3.amplifyapp.com",
+    "https://www.makemypackages.com",
+    "https://makemypackages.com",
+]);
+const corsOptions = {
+    origin: (origin, callback) => {
+        // allow server-side tools / curl without Origin
+        if (!origin)
+            return callback(null, true);
+        if (allowedOrigins.has(origin))
+            return callback(null, true);
+        return callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
-}));
+    allowedHeaders: ["Content-Type", "Authorization"],
+    methods: ["GET", "POST", "OPTIONS", "PUT", "PATCH", "DELETE"],
+};
+app.use(cors(corsOptions));
+// Ensure OPTIONS is handled early (handle all OPTIONS requests without using path-to-regexp)
+app.use((req, res, next) => {
+    if (req.method === "OPTIONS")
+        return res.sendStatus(204);
+    next();
+});
 // Middleware
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
