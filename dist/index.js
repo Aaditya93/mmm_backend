@@ -7,6 +7,7 @@ import http from "http";
 import https from "https";
 import { execSync } from "child_process";
 import { processPackagePdfWithProgress } from "./ai.js";
+import { generatePdfController } from "./pdf.js";
 // Initialize Express app
 const app = express();
 const PORT = Number(process.env.PORT) || 3001;
@@ -147,6 +148,7 @@ function startHttpServer() {
         console.log(`   - GET  /health (health check)`);
     });
 }
+app.post("/generate-pdf", generatePdfController);
 // Route to create package from PDF with progress updates (SSE)
 app.post("/create-package", async (req, res) => {
     try {

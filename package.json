@@ -27,6 +27,7 @@
     "mime": "^4.1.0",
     "mongoose": "^8.20.0",
     "multer": "^2.0.2",
+    "puppeteer": "^24.32.1",
     "uuid": "^13.0.0"
   },
   "devDependencies": {

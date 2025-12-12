@@ -8,6 +8,7 @@ import http from "http";
 import https from "https";
 import { execSync } from "child_process";
 import { processPackagePdfWithProgress } from "./ai.js";
+import { generatePdfController } from "./pdf.js";
 // Extend Express Request type to include 'file' property from multer
 declare global {
   namespace Express {
@@ -189,7 +190,7 @@ function startHttpServer() {
     console.log(`   - GET  /health (health check)`);
   });
 }
-
+app.post("/generate-pdf", generatePdfController);
 // Route to create package from PDF with progress updates (SSE)
 app.post("/create-package", async (req, res) => {
   try {
