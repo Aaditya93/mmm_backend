@@ -9,7 +9,7 @@ import https from "https";
 import { execSync } from "child_process";
 import { processPackagePdfWithProgress } from "./ai.js";
 import { generatePdfController } from "./pdf.js";
-// Extend Express Request type to include 'file' property from multer
+
 declare global {
   namespace Express {
     interface Request {
