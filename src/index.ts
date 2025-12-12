@@ -30,6 +30,7 @@ app.use(
       "https://api.makemypackages.com",
       "https://main.d3cl9zxj5czhv3.amplifyapp.com",
       "https://www.makemypackages.com",
+      "https://makemypackages.com",
     ],
     credentials: true,
   })
