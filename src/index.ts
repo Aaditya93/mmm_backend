@@ -23,34 +23,36 @@ const app = express();
 const PORT = Number(process.env.PORT) || 3001;
 const HTTPS_PORT = Number(process.env.HTTPS_PORT) || 443;
 
-// --- FIX START ---
-const allowedOrigins = [
+const allowedOrigins = new Set([
   "http://localhost:3000",
-  "https://api.makemypackages.com",
   "https://main.d3cl9zxj5czhv3.amplifyapp.com",
   "https://www.makemypackages.com",
   "https://makemypackages.com",
-];
+]);
 
 const corsOptions: cors.CorsOptions = {
-  origin: (origin, callback) => {
-    // allow server-side tools / curl without Origin
-    if (!origin) return callback(null, true);
+  origin: (origin, cb) => {
+    // allow non-browser tools (no Origin header)
+    if (!origin) return cb(null, true);
 
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      console.log("Blocked by CORS:", origin); // Debugging log
-      callback(new Error("Not allowed by CORS"));
+    if (allowedOrigins.has(origin)) {
+      // IMPORTANT: return the origin string so Access-Control-Allow-Origin is set
+      return cb(null, origin);
     }
+
+    return cb(new Error(`Not allowed by CORS: ${origin}`));
   },
   credentials: true,
-  allowedHeaders: ["Content-Type", "Authorization"],
   methods: ["GET", "POST", "OPTIONS", "PUT", "PATCH", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  optionsSuccessStatus: 204,
 };
 
-// Apply CORS middleware globally BEFORE other routes
+// Apply CORS early
 app.use(cors(corsOptions));
+
+// Explicitly handle preflight for this endpoint (guarantees CORS runs on OPTIONS)
+app.options("/create-package", cors(corsOptions));
 
 // Handle OPTIONS preflight explicitly if needed, but cors() usually handles it.
 // If you keep this manual handler, ensure headers are set.
