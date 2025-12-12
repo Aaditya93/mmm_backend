@@ -409,7 +409,7 @@ function createItineraryPrompt() {
     **CRITICAL INSTRUCTIONS:**
     1.  **ITINERARY:** For each day, provide a detailed 100+ word description, meals, and activities. Extract main daily events (tours, attractions, parks, temple visits, safaris, etc.), skipping non‑main/operational items (leisure, free time, meals, transfers, flights). For each activity return a 3–4 line paragraph, with Title Case trimmed names kept in the itinerary’s original order.
     2.  **ACCOMMODATION:** Extract accommodation details (name, stars, roomType, details). Don't repeat hotel info if same for multiple nights.
-    3.  **TRANSPORTATION:** Mention all transportation items found in the PDF. Don't Include flight details here. Include whether the transportation is shared or private.
+    3.  **TRANSPORTATION:** Mention all transportation items found in the PDF. Don't Include flight details here. Include whether the transportation is shared or private. PRV means private transfer. PVT means Private transfer. SIC means Shared transfer.Look for PVT or PRV/SIC keywords in the pdf. Add shared: true for SIC and false for PVT/PRV. Check carefully in the pdf for these keywords.It can be written in transfer cloumn.
     4.  **INCLUSIONS/EXCLUSIONS/NOTES:** List all items clearly.
     5.  **LOCATIONS & ACTIVITIES:** List all locations visited and activities performed. list only top 10-15 activities.
 
