@@ -539,7 +539,7 @@ function createPricingPrompt() {
     2.  **DATES:** Extract start date, end date (DD-MM-YYYY) and booking deadline (MM/DD/YYYY).
     3.  **DURATION:** Extract days and nights.
     4.  **TRAVELERS:** Extract the number of adults and children.
-    5.  **FLIGHTS:** Extract flight details including airline, numbers, times, baggage, layovers, price,currency.
+    5.  **FLIGHTS:** Extract flight details including airline, numbers, times, baggage, layovers, price,currency. Only add flights that are explicitly mentioned in the PDF. There is all the flight related information in the pdf.
     6.  **VISA:** Extract visa costs and details. if type is not specified, assume Adult.
 
     **STRICTLY ADHERE** to the JSON schema.
