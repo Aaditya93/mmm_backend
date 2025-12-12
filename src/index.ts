@@ -23,51 +23,39 @@ const app = express();
 const PORT = Number(process.env.PORT) || 3001;
 const HTTPS_PORT = Number(process.env.HTTPS_PORT) || 443;
 
-// Use this instead of the array form
-const allowedOrigins = new Set([
+// --- FIX START ---
+const allowedOrigins = [
   "http://localhost:3000",
   "https://api.makemypackages.com",
   "https://main.d3cl9zxj5czhv3.amplifyapp.com",
   "https://www.makemypackages.com",
   "https://makemypackages.com",
-]);
+];
 
-interface CorsOriginCallback {
-  (
-    origin: string | undefined,
-    callback: (err: Error | null, allow?: boolean) => void
-  ): void;
-}
-
-interface MyCorsOptions {
-  origin?: boolean | string | RegExp | CorsOriginCallback;
-  credentials?: boolean;
-  allowedHeaders?: string[];
-  methods?: string[];
-}
-
-const corsOptions: MyCorsOptions = {
-  origin: (
-    origin: string | undefined,
-    callback: (err: Error | null, allow?: boolean) => void
-  ) => {
+const corsOptions: cors.CorsOptions = {
+  origin: (origin, callback) => {
     // allow server-side tools / curl without Origin
     if (!origin) return callback(null, true);
-    if (allowedOrigins.has(origin)) return callback(null, true);
-    return callback(new Error("Not allowed by CORS"));
+
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.log("Blocked by CORS:", origin); // Debugging log
+      callback(new Error("Not allowed by CORS"));
+    }
   },
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization"],
   methods: ["GET", "POST", "OPTIONS", "PUT", "PATCH", "DELETE"],
 };
 
+// Apply CORS middleware globally BEFORE other routes
 app.use(cors(corsOptions));
 
-// Ensure OPTIONS is handled early (handle all OPTIONS requests without using path-to-regexp)
-app.use((req, res, next) => {
-  if (req.method === "OPTIONS") return res.sendStatus(204);
-  next();
-});
+// Handle OPTIONS preflight explicitly if needed, but cors() usually handles it.
+// If you keep this manual handler, ensure headers are set.
+// REMOVED: app.options("*", cors(corsOptions));
+// The line above causes a crash with newer path-to-regexp versions and is redundant because app.use(cors()) handles preflight.
 
 // Middleware
 app.use(express.json({ limit: "10mb" }));
