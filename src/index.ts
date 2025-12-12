@@ -52,7 +52,6 @@ const corsOptions: cors.CorsOptions = {
 app.use(cors(corsOptions));
 
 // Explicitly handle preflight for this endpoint (guarantees CORS runs on OPTIONS)
-app.options("/create-package", cors(corsOptions));
 
 // Handle OPTIONS preflight explicitly if needed, but cors() usually handles it.
 // If you keep this manual handler, ensure headers are set.
