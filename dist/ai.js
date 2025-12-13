@@ -46,6 +46,8 @@ function getMarketingSchema() {
             "description",
             "audioSummary",
             "summary",
+            "activities",
+            "locations",
         ],
         properties: {
             title: {
@@ -74,6 +76,16 @@ function getMarketingSchema() {
                 type: "string",
                 description: "Single sentence (<30 words) including: tour type (e.g. Family Adventure / Luxury Honeymoon / Cultural Explorer), duration (X days / Y nights), hotel category (e.g. 3-Star / Mixed 4–5-Star), destination, 1–2 top highlights. Optimized for semantic vector search.",
             },
+            locations: {
+                type: "array",
+                items: { type: "string" },
+                description: "Must-visit destinations that create excitement. Include iconic landmarks and hidden gems.",
+            },
+            activities: {
+                type: "array",
+                items: { type: "string" },
+                description: "Compelling activities that differentiate this package. Focus on unique experiences and cultural immersions.",
+            },
         },
     };
 }
@@ -85,28 +97,14 @@ function getItinerarySchema() {
             "itinerary",
             "accommodation",
             "transportation",
-            "inclusions",
-            "exclusions",
-            "notes",
-            "locations",
             "activityDetails",
         ],
         properties: {
-            locations: {
-                type: "array",
-                items: { type: "string" },
-                description: "Must-visit destinations that create excitement. Include iconic landmarks and hidden gems.",
-            },
-            activities: {
-                type: "array",
-                items: { type: "string" },
-                description: "Compelling activities that differentiate this package. Focus on unique experiences and cultural immersions.",
-            },
             itinerary: {
                 type: "array",
                 items: {
                     type: "object",
-                    required: ["day", "title", "description", "meals", "activities"],
+                    required: ["day", "title", "description", "meals", "activityDetails"],
                     properties: {
                         day: { type: "integer" },
                         title: { type: "string" },
@@ -202,13 +200,6 @@ function getItinerarySchema() {
                     },
                 },
             },
-            inclusions: { type: "array", items: { type: "string" } },
-            exclusions: { type: "array", items: { type: "string" } },
-            notes: {
-                type: "array",
-                items: { type: "string" },
-                description: "Important notes regarding the package. Don't mention visa related infomation.",
-            },
         },
     };
 }
@@ -216,7 +207,15 @@ function getItinerarySchema() {
 function getPricingSchema() {
     return {
         type: "object",
-        required: ["priceData", "days", "nights", "travelers"],
+        required: [
+            "priceData",
+            "days",
+            "nights",
+            "travelers",
+            "inclusions",
+            "exclusions",
+            "notes",
+        ],
         properties: {
             days: { type: "integer" },
             nights: { type: "integer" },
@@ -338,6 +337,13 @@ function getPricingSchema() {
                     },
                 },
             },
+            inclusions: { type: "array", items: { type: "string" } },
+            exclusions: { type: "array", items: { type: "string" } },
+            notes: {
+                type: "array",
+                items: { type: "string" },
+                description: "Important notes regarding the package. Don't mention visa related infomation.",
+            },
         },
     };
 }
@@ -361,6 +367,7 @@ function createMarketingPrompt() {
     4.  **KEYWORDS:** Include SEO-focused keywords for the destination and experiences.
     5.  **AUDIO SUMMARY:** Create a conversational audio script in simple words, alternating between Speaker 1 and Speaker 2.
     6.  **SUMMARY:** Write <30 words. Must include: tour type, duration, hotel category, destination name, and 1–2 signature highlights.
+    7.  **LOCATIONS & ACTIVITIES:** List all locations visited and activities performed. list only top 10-15 activities.
 
     **WRITING TONE:** Enthusiastic, sophisticated, and emotionally engaging.
     
@@ -390,6 +397,16 @@ function createMarketingPrompt() {
       "description": "Embark on an unforgettable 6-day family adventure in Bali, a paradise where ancient traditions meet stunning landscapes. This meticulously planned itinerary is designed to immerse you in the heart of Balinese culture, natural beauty, and thrilling experiences. Begin your journey with a visit to Tegenungan Waterfall, and the Kintamani volcano view point, followed by exploring the Alas Harum Bali Swing. Discover the iconic 'Gates of Heaven' at Lempuyang Temple. Feel the thrill of Tanjung Benoa beach with exciting watersports. Adventure to the breathtaking island of Nusa Penida, and explore the stunning Kelingking Beach, Broken Beach, Angel Billabong, and Crystal Bay. This enchanting escape promises cherished memories for the whole family.",
       "audioSummary": "Speaker 1: Welcome to your Unforgettable 6-Day Bali Family Escape! Get ready to experience the perfect mix of adventure, relaxation, and culture on one of the world's most beautiful islands.\\nSpeaker 2: Picture this — waterfalls, temples, tropical beaches, and those stunning Bali sunsets. Sounds magical already, right?\\nSpeaker 1: Your journey begins the moment you arrive at Bali Airport, where you'll be greeted with a warm smile and taken straight to your cozy hotel.\\nSpeaker 2: The next day, it's time for adventure! Visit the breathtaking Tegenungan Waterfall and enjoy spectacular views of the Kintamani Volcano.\\nSpeaker 1: You'll also explore Ubud Palace and take that famous jungle swing at Alas Harum — a perfect spot for family photos!\\nSpeaker 2: Then comes a day of fun in the sun at Tanjung Benoa Beach, where you'll enjoy thrilling watersports, including a banana boat ride.\\nSpeaker 1: Don't miss the sunset at Uluwatu Temple — it's truly one of Bali's most magical moments.\\nSpeaker 2: On day four, step into Bali's spiritual side with a visit to the Lempuyang Temple, known as the Gates of Heaven, followed by the serene Tirta Gangga Water Palace.\\nSpeaker 1: And just when you think it can't get any better — you'll sail to Nusa Penida Island!\\nSpeaker 2: Explore Kelingking Beach, Broken Beach, Angel Billabong, and Crystal Bay — four breathtaking spots that define paradise.\\nSpeaker 1: As your journey comes to an end, you'll enjoy one last breakfast before heading home, carrying memories of Bali's beauty, culture, and warmth.\\nSpeaker 2: Six days of family fun, island adventure, and unforgettable moments — this is your Bali Family Escape.\\nSpeaker 1: Ready to experience it? Let Bali welcome you with open arms. 🌴",
       "summary": "6-day Bali Family Adventure with temples, waterfalls, Nusa Penida island tour, cultural experiences, and stunning volcano views. 3-Star hotels ideal for families. Affordable and fun.",
+       "locations": ["Ubud", "Tanjung Benoa", "Uluwatu", "Nusa Penida", "Lempuyang"],
+      "activities": [
+        "Cultural Exploration",
+        "Beach Hopping",
+        "Watersports",
+        "Scenic Sightseeing",
+        "Waterfall Visit",
+        "Volcano View",
+        "Island Tour"
+      ],
     }
     \`\`\`
     Return only valid JSON without additional text or formatting.
@@ -409,9 +426,12 @@ function createItineraryPrompt() {
     **CRITICAL INSTRUCTIONS:**
     1.  **ITINERARY:** For each day, provide a detailed 100+ word description, meals, and activities. Extract main daily events (tours, attractions, parks, temple visits, safaris, etc.), skipping non‑main/operational items (leisure, free time, meals, transfers, flights). For each activity return a 3–4 line paragraph, with Title Case trimmed names kept in the itinerary’s original order.
     2.  **ACCOMMODATION:** Extract accommodation details (name, stars, roomType, details). Don't repeat hotel info if same for multiple nights.
-    3.  **TRANSPORTATION:** Mention all transportation items found in the PDF. Don't Include flight details here. Include whether the transportation is shared or private. PRV means private transfer. PVT means Private transfer. SIC means Shared transfer.Look for PVT or PRV/SIC keywords in the pdf. Add shared: true for SIC and false for PVT/PRV. Check carefully in the pdf for these keywords.It can be written in transfer cloumn.
-    4.  **INCLUSIONS/EXCLUSIONS/NOTES:** List all items clearly.
-    5.  **LOCATIONS & ACTIVITIES:** List all locations visited and activities performed. list only top 10-15 activities.
+   3.  **TRANSPORTATION:** Extract transportation entries found in the PDF. The PDF may contain a table with columns like DAY / BRIEF ITINERARY / HOTEL / MEAL / NOTE / GUIDE. When a "NOTE" column contains PRV, PVT or PVT (private) mark shared: false. When it contains SIC mark shared: true. If NOTE is '-' or missing, default to shared: false. Map common wording in itinerary or brief itinerary column to vehicle types using these rules (case-insensitive):
+      For each transportation item include: { type, title, vehicle, details, shared }.
+      Get All the transportation entries from the pdf. Note it is  neessary to get all the transportation entries from the pdf.
+      When the PDF uses abbreviations PRV/PVT/SIC, decode them exactly: PRV/PVT -> shared: false, SIC -> shared: true.
+      Focus more On SIC vs PVT/PRV for shared field rather than vehicle type. 
+   
 
     **WRITING TONE:** Clear, accurate, and informative.
     
@@ -446,18 +466,7 @@ function createItineraryPrompt() {
               "name": "Tegenungan Waterfall Visit",
               "description": "Marvel at the lush surroundings and thundering cascade of Tegenungan Waterfall, with time for photos and short walks along the viewing areas. Enjoy the refreshing mist and vantage points that highlight the waterfall's dramatic drop. The site offers easy access and short walking paths suitable for most travelers."
             },
-            {
-              "name": "Kintamani Volcano Viewpoint",
-              "description": "Admire sweeping vistas of Mt. Batur and its caldera lake from elevated viewpoints. Sample locally roasted coffee while taking in the volcanic landscape and crisp mountain air. Guided stops provide historical and geological context about the region."
-            },
-            {
-              "name": "Alas Harum Bali Swing",
-              "description": "Feel the thrill of the iconic Bali swing above rice terraces and jungle valleys with safety briefings and photo opportunities. Enjoy sweeping views and a short walk through landscaped gardens. The experience is suitable for most guests and includes optional photography packages."
-            },
-            {
-              "name": "Ubud Palace & Celuk Village",
-              "description": "Explore the ornate Ubud Palace grounds and learn about royal Balinese architecture and cultural performances. Visit Celuk Village to observe master artisans crafting gold and silver jewelry using traditional techniques. Opportunity to shop for handcrafted souvenirs and watch live demonstrations."
-            }
+            
           ]
         }
       ],
@@ -485,33 +494,12 @@ function createItineraryPrompt() {
           "details": "Arrival at Bali airport meet and greet by OUR REPRESENTATIVE then transfer to the hotel."
         },
         {
-          "type": "tour",
-          "title": "Daily Tours",
+          "type": "transfer",
+          "title": "Phu Quoc Arrival – Grand World",
           "vehicle": "4 Seater car",
-          "shared": false,
-          "details": "Transportation use: 4 Seater car for daily tours"
+          "shared": true,
+          "details": "Upon arrival at Phu Quoc airport, you will be welcomed by our representative and transferred to Grand World for exploration and leisure activities."
         }
-      ],
-      "inclusions": [
-        
-        "Transportation use: 4 Seater car",
-        "1 bottle of mineral water 600ml on arrival day, 2 bottles of mineral water 600ml during tour"
-      ],
-      "exclusions": [
-        "Airline ticket",
-        "Tipping for driver and tour guide",
-        "Personal expenses and other expenses which are not stated in the program"
-      ],
-
-      "locations": ["Ubud", "Tanjung Benoa", "Uluwatu", "Nusa Penida", "Lempuyang"],
-      "activities": [
-        "Cultural Exploration",
-        "Beach Hopping",
-        "Watersports",
-        "Scenic Sightseeing",
-        "Waterfall Visit",
-        "Volcano View",
-        "Island Tour"
       ],
       
     }
@@ -541,6 +529,7 @@ function createPricingPrompt() {
     4.  **TRAVELERS:** Extract the number of adults and children.
     5.  **FLIGHTS:** Extract flight details including airline, numbers, times, baggage, layovers, price,currency. Only add flights that are explicitly mentioned in the PDF. There is all the flight related information in the pdf.
     6.  **VISA:** Extract visa costs and details. if type is not specified, assume Adult.
+    7.  **INCLUSIONS/EXCLUSIONS/NOTES:** List all items clearly.
 
     **STRICTLY ADHERE** to the JSON schema.
       **EXAMPLE OUTPUT:**
@@ -605,6 +594,20 @@ function createPricingPrompt() {
           "type": "Adult"
         }
       ],
+      "inclusions": [
+        
+        "Transportation use: 4 Seater car",
+        "1 bottle of mineral water 600ml on arrival day, 2 bottles of mineral water 600ml during tour"
+      ],
+      "exclusions": [
+        "Airline ticket",
+        "Tipping for driver and tour guide",
+        "Personal expenses and other expenses which are not stated in the program"
+      ],
+      "notes": [
+        "Prices are subject to change based on availability and seasonality.",
+        "Visa fees may vary based on nationality and are subject to change."
+      ]
      
     }
     \`\`\`
