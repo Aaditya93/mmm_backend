@@ -8,6 +8,7 @@ import dbConnect from "./db/connection.js";
 import Package from "./db/Package.js";
 import { generateAudioSummary } from "./audio.js"; // Add this import
 import { generateEmbedding } from "./embedding.js";
+import mammoth from "mammoth";
 dotenv.config();
 // Initialize Gemini AI client
 function initializeGeminiClient() {
@@ -630,7 +631,7 @@ function createPricingPrompt() {
   `;
 }
 // Execute extraction
-async function executeExtraction(pdfBuffer, prompt, generationConfig, schema) {
+async function executeExtraction(fileBuffer, prompt, generationConfig, schema, mimeType = "application/pdf") {
     const genAI = initializeGeminiClient();
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
     const genOptions = {
@@ -643,12 +644,32 @@ async function executeExtraction(pdfBuffer, prompt, generationConfig, schema) {
     if (schema) {
         genOptions.responseSchema = schema;
     }
+    // If DOCX, extract plain text (Gemini here rejects DOCX uploads)
+    let inlinePayload;
+    const docxMime = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+    if (mimeType === docxMime) {
+        try {
+            const { value: extractedText } = await mammoth.extractRawText({
+                buffer: fileBuffer,
+            });
+            inlinePayload = {
+                data: Buffer.from(String(extractedText), "utf-8").toString("base64"),
+                mimeType: "text/plain",
+            };
+        }
+        catch (err) {
+            throw new Error(`Failed to extract text from DOCX: ${err?.message || err}`);
+        }
+    }
+    else {
+        inlinePayload = {
+            data: fileBuffer.toString("base64"),
+            mimeType,
+        };
+    }
     const result = await model.generateContent([
         {
-            inlineData: {
-                data: pdfBuffer.toString("base64"),
-                mimeType: "application/pdf",
-            },
+            inlineData: inlinePayload,
         },
         prompt,
     ], genOptions);
@@ -672,14 +693,18 @@ async function executeExtraction(pdfBuffer, prompt, generationConfig, schema) {
 export async function extractPackageData(pdfPath) {
     try {
         const pdfBuffer = fs.readFileSync(pdfPath);
+        const ext = path.extname(pdfPath).toLowerCase();
+        const mimeType = ext === ".docx" || ext === ".doc"
+            ? "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            : "application/pdf";
         // Task 1, 2 & 3: Run extractions in parallel
         const marketingPrompt = createMarketingPrompt();
         const itineraryPrompt = createItineraryPrompt();
         const pricingPrompt = createPricingPrompt();
         const [[marketingData], [itineraryData], [pricingData]] = await Promise.all([
-            executeExtraction(pdfBuffer, marketingPrompt, getCreativeGenerationConfig(), getMarketingSchema()),
-            executeExtraction(pdfBuffer, itineraryPrompt, getDeterministicGenerationConfig(), getItinerarySchema()),
-            executeExtraction(pdfBuffer, pricingPrompt, getDeterministicGenerationConfig(), getPricingSchema()),
+            executeExtraction(pdfBuffer, marketingPrompt, getCreativeGenerationConfig(), getMarketingSchema(), mimeType),
+            executeExtraction(pdfBuffer, itineraryPrompt, getDeterministicGenerationConfig(), getItinerarySchema(), mimeType),
+            executeExtraction(pdfBuffer, pricingPrompt, getDeterministicGenerationConfig(), getPricingSchema(), mimeType),
         ]);
         // Merge the results from all tasks
         const combinedData = {
@@ -884,6 +909,10 @@ export async function processPackagePdfWithProgress(packageId, pdfPath, destinat
     try {
         onProgress("extraction", "Extracting package data from PDF...", 15);
         const pdfBuffer = fs.readFileSync(localPath);
+        const ext = path.extname(pdfPath).toLowerCase();
+        const mimeType = ext === ".docx" || ext === ".doc"
+            ? "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            : "application/pdf";
         // Run extractions in parallel with individual progress updates
         const marketingPrompt = createMarketingPrompt();
         const itineraryPrompt = createItineraryPrompt();
@@ -891,19 +920,19 @@ export async function processPackagePdfWithProgress(packageId, pdfPath, destinat
         const pricingPrompt = createPricingPrompt();
         onProgress("extraction", "Running AI extraction (Marketing, Itinerary, Daily Itinerary, Pricing)...", 20);
         const [marketingResult, itineraryResult, dailyItineraryResult, pricingResult,] = await Promise.all([
-            executeExtraction(pdfBuffer, marketingPrompt, getCreativeGenerationConfig(), getMarketingSchema()).then((result) => {
+            executeExtraction(pdfBuffer, marketingPrompt, getCreativeGenerationConfig(), getMarketingSchema(), mimeType).then((result) => {
                 onProgress("marketing", "Marketing data extracted", 30);
                 return result;
             }),
-            executeExtraction(pdfBuffer, itineraryPrompt, getDeterministicGenerationConfig(), getItinerarySchema()).then((result) => {
+            executeExtraction(pdfBuffer, itineraryPrompt, getDeterministicGenerationConfig(), getItinerarySchema(), mimeType).then((result) => {
                 onProgress("itinerary", "Accommodation & Transportation extracted", 42);
                 return result;
             }),
-            executeExtraction(pdfBuffer, dailyItineraryPrompt, getDeterministicGenerationConfig(), getDailyItinerarySchema()).then((result) => {
+            executeExtraction(pdfBuffer, dailyItineraryPrompt, getDeterministicGenerationConfig(), getDailyItinerarySchema(), mimeType).then((result) => {
                 onProgress("dailyItinerary", "Daily itinerary extracted", 54);
                 return result;
             }),
-            executeExtraction(pdfBuffer, pricingPrompt, getDeterministicGenerationConfig(), getPricingSchema()).then((result) => {
+            executeExtraction(pdfBuffer, pricingPrompt, getDeterministicGenerationConfig(), getPricingSchema(), mimeType).then((result) => {
                 onProgress("pricing", "Pricing data extracted", 65);
                 return result;
             }),

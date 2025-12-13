@@ -8,6 +8,7 @@ import dbConnect from "./db/connection.js";
 import Package from "./db/Package.js";
 import { generateAudioSummary } from "./audio.js"; // Add this import
 import { generateEmbedding } from "./embedding.js";
+import mammoth from "mammoth";
 
 dotenv.config();
 
@@ -745,10 +746,11 @@ function createPricingPrompt(): string {
 
 // Execute extraction
 async function executeExtraction(
-  pdfBuffer: Buffer,
+  fileBuffer: Buffer,
   prompt: string,
   generationConfig: GenerationConfig,
-  schema?: any
+  schema?: any,
+  mimeType: string = "application/pdf"
 ): Promise<[any]> {
   const genAI = initializeGeminiClient();
   const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
@@ -765,13 +767,36 @@ async function executeExtraction(
     genOptions.responseSchema = schema;
   }
 
+  // If DOCX, extract plain text (Gemini here rejects DOCX uploads)
+  let inlinePayload: { data: string; mimeType: string };
+  const docxMime =
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+
+  if (mimeType === docxMime) {
+    try {
+      const { value: extractedText } = await mammoth.extractRawText({
+        buffer: fileBuffer,
+      });
+      inlinePayload = {
+        data: Buffer.from(String(extractedText), "utf-8").toString("base64"),
+        mimeType: "text/plain",
+      };
+    } catch (err: any) {
+      throw new Error(
+        `Failed to extract text from DOCX: ${err?.message || err}`
+      );
+    }
+  } else {
+    inlinePayload = {
+      data: fileBuffer.toString("base64"),
+      mimeType,
+    };
+  }
+
   const result = await model.generateContent(
     [
       {
-        inlineData: {
-          data: pdfBuffer.toString("base64"),
-          mimeType: "application/pdf",
-        },
+        inlineData: inlinePayload,
       },
       prompt,
     ],
@@ -802,6 +827,11 @@ export async function extractPackageData(pdfPath: string): Promise<{
 }> {
   try {
     const pdfBuffer = fs.readFileSync(pdfPath);
+    const ext = path.extname(pdfPath).toLowerCase();
+    const mimeType =
+      ext === ".docx" || ext === ".doc"
+        ? "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        : "application/pdf";
 
     // Task 1, 2 & 3: Run extractions in parallel
     const marketingPrompt = createMarketingPrompt();
@@ -814,19 +844,22 @@ export async function extractPackageData(pdfPath: string): Promise<{
           pdfBuffer,
           marketingPrompt,
           getCreativeGenerationConfig(),
-          getMarketingSchema()
+          getMarketingSchema(),
+          mimeType
         ),
         executeExtraction(
           pdfBuffer,
           itineraryPrompt,
           getDeterministicGenerationConfig(),
-          getItinerarySchema()
+          getItinerarySchema(),
+          mimeType
         ),
         executeExtraction(
           pdfBuffer,
           pricingPrompt,
           getDeterministicGenerationConfig(),
-          getPricingSchema()
+          getPricingSchema(),
+          mimeType
         ),
       ]
     );
@@ -1095,6 +1128,11 @@ export async function processPackagePdfWithProgress(
     onProgress("extraction", "Extracting package data from PDF...", 15);
 
     const pdfBuffer = fs.readFileSync(localPath);
+    const ext = path.extname(pdfPath).toLowerCase();
+    const mimeType =
+      ext === ".docx" || ext === ".doc"
+        ? "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        : "application/pdf";
 
     // Run extractions in parallel with individual progress updates
     const marketingPrompt = createMarketingPrompt();
@@ -1118,7 +1156,8 @@ export async function processPackagePdfWithProgress(
         pdfBuffer,
         marketingPrompt,
         getCreativeGenerationConfig(),
-        getMarketingSchema()
+        getMarketingSchema(),
+        mimeType
       ).then((result) => {
         onProgress("marketing", "Marketing data extracted", 30);
         return result;
@@ -1127,7 +1166,8 @@ export async function processPackagePdfWithProgress(
         pdfBuffer,
         itineraryPrompt,
         getDeterministicGenerationConfig(),
-        getItinerarySchema()
+        getItinerarySchema(),
+        mimeType
       ).then((result) => {
         onProgress("itinerary", "Accommodation & Transportation extracted", 42);
         return result;
@@ -1136,7 +1176,8 @@ export async function processPackagePdfWithProgress(
         pdfBuffer,
         dailyItineraryPrompt,
         getDeterministicGenerationConfig(),
-        getDailyItinerarySchema()
+        getDailyItinerarySchema(),
+        mimeType
       ).then((result) => {
         onProgress("dailyItinerary", "Daily itinerary extracted", 54);
         return result;
@@ -1145,7 +1186,8 @@ export async function processPackagePdfWithProgress(
         pdfBuffer,
         pricingPrompt,
         getDeterministicGenerationConfig(),
-        getPricingSchema()
+        getPricingSchema(),
+        mimeType
       ).then((result) => {
         onProgress("pricing", "Pricing data extracted", 65);
         return result;
