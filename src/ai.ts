@@ -180,74 +180,11 @@ function getMarketingSchema(): any {
   };
 }
 
-// 2. Itinerary Schema
 function getItinerarySchema(): any {
   return {
     type: "object",
-    required: [
-      "itinerary",
-      "accommodation",
-      "transportation",
-      "activityDetails",
-    ],
+    required: ["accommodation", "transportation"],
     properties: {
-      itinerary: {
-        type: "array",
-        items: {
-          type: "object",
-          required: ["day", "title", "description", "meals", "activityDetails"],
-          properties: {
-            day: { type: "integer" },
-            title: { type: "string" },
-            description: {
-              type: "string",
-              description:
-                "Write immersive 100+ word descriptions for each day.",
-            },
-            meals: {
-              type: "array",
-              items: { type: "string" },
-              description:
-                "List of meals included for the day, e.g., ['Breakfast', 'Dinner'].",
-            },
-            activityDetails: {
-              type: "array",
-              items: {
-                type: "object",
-                required: ["day", "activityDetails"],
-                properties: {
-                  day: { type: "number" },
-                  activityDetails: {
-                    type: "array",
-                    description:
-                      "Ordered roughly as in itinerary. Include only MAIN events (tours, attractions, safari, etc.). Skip non-main items listed in the schema description.",
-                    items: {
-                      type: "object",
-                      required: ["name", "description"],
-                      properties: {
-                        name: {
-                          type: "string",
-                          minLength: 1,
-                          description:
-                            "Activity name in Title Case (trimmed). Examples: 'Water Park', 'Temple Visit'.",
-                          pattern: "^[A-Z][A-Za-z0-9'\\-\\s:,&()]+$",
-                        },
-                        description: {
-                          type: "string",
-                          minLength: 50,
-                          maxLength: 600,
-                          description:
-                            "One paragraph (3-4 short sentences) describing what guests can expect. No markdown, no lists, no extra quoting. Keep concise.",
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
       accommodation: {
         type: "array",
         items: {
@@ -295,6 +232,61 @@ function getItinerarySchema(): any {
               type: "boolean",
               description:
                 "Indicates whether the transportation is shared or private. If shared, set to true; if private, set to false.",
+            },
+          },
+        },
+      },
+    },
+  };
+}
+
+// 2b. Daily Itinerary Schema (separate extraction)
+function getDailyItinerarySchema(): any {
+  return {
+    type: "object",
+    required: ["itinerary"],
+    properties: {
+      itinerary: {
+        type: "array",
+        items: {
+          type: "object",
+          required: ["day", "title", "description", "meals", "activityDetails"],
+          properties: {
+            day: { type: "integer" },
+            title: { type: "string" },
+            description: {
+              type: "string",
+              description:
+                "Write immersive 100+ word descriptions for each day.",
+            },
+            meals: {
+              type: "array",
+              items: { type: "string" },
+              description:
+                "List of meals included for the day, e.g., ['Breakfast', 'Dinner'].",
+            },
+            activityDetails: {
+              type: "array",
+              items: {
+                type: "object",
+                required: ["name", "description"],
+                properties: {
+                  name: {
+                    type: "string",
+                    minLength: 1,
+                    description:
+                      "Activity name in Title Case (trimmed). Examples: 'Water Park', 'Temple Visit'.",
+                    pattern: "^[A-Z][A-Za-z0-9'\\-\\s:,&()]+$",
+                  },
+                  description: {
+                    type: "string",
+                    minLength: 50,
+                    maxLength: 600,
+                    description:
+                      "One paragraph (3-4 short sentences) describing what guests can expect. No markdown, no lists, no extra quoting. Keep concise.",
+                  },
+                },
+              },
             },
           },
         },
@@ -514,7 +506,7 @@ function createMarketingPrompt(): string {
         "Watersports",
         "Scenic Sightseeing",
         "Waterfall Visit",
-        "Volcano View",
+        "Volcano View",3
         "Island Tour"
       ],
     }
@@ -525,7 +517,7 @@ function createMarketingPrompt(): string {
 
 function createItineraryPrompt(): string {
   return `
-    Extract the detailed itinerary and logistical information from the provided PDF.
+    Extract the accommodation and transportation information from the provided PDF.
     Focus on the structured details of the trip.
      **JSON FORMATTING RULES (CRITICAL):**
     - Return ONLY valid JSON, no markdown code blocks
@@ -535,9 +527,8 @@ function createItineraryPrompt(): string {
     - NO comments in the JSON
 
     **CRITICAL INSTRUCTIONS:**
-    1.  **ITINERARY:** For each day, provide a detailed 100+ word description, meals, and activities. Extract main daily events (tours, attractions, parks, temple visits, safaris, etc.), skipping non‑main/operational items (leisure, free time, meals, transfers, flights). For each activity return a 3–4 line paragraph, with Title Case trimmed names kept in the itinerary’s original order.
-    2.  **ACCOMMODATION:** Extract accommodation details (name, stars, roomType, details). Don't repeat hotel info if same for multiple nights.
-   3.  **TRANSPORTATION:** Extract transportation entries found in the PDF. The PDF may contain a table with columns like DAY / BRIEF ITINERARY / HOTEL / MEAL / NOTE / GUIDE. When a "NOTE" column contains PRV, PVT or PVT (private) mark shared: false. When it contains SIC mark shared: true. If NOTE is '-' or missing, default to shared: false. Map common wording in itinerary or brief itinerary column to vehicle types using these rules (case-insensitive):
+    1.  **ACCOMMODATION:** Extract accommodation details (name, stars, roomType, details). Don't repeat hotel info if same for multiple nights.
+    2.  **TRANSPORTATION:** Extract transportation entries found in the PDF. The PDF may contain a table with columns like DAY / BRIEF ITINERARY / HOTEL / MEAL / NOTE / GUIDE. When a "NOTE" column contains PRV, PVT or PVT (private) mark shared: false. When it contains SIC mark shared: true. If NOTE is '-' or missing, default to shared: false. Map common wording in itinerary or brief itinerary column to vehicle types using these rules (case-insensitive):
       For each transportation item include: { type, title, vehicle, details, shared }.
       Get All the transportation entries from the pdf. Note it is  neessary to get all the transportation entries from the pdf.
       When the PDF uses abbreviations PRV/PVT/SIC, decode them exactly: PRV/PVT -> shared: false, SIC -> shared: true.
@@ -550,37 +541,6 @@ function createItineraryPrompt(): string {
       **EXAMPLE OUTPUT:**
 
     {
-      "itinerary": [
-
-        {
-          "day": 1,
-          "title": "Arrival in Bali",
-          "description": "Upon arrival at Bali airport, you will be greeted by our representative. You will then be transferred to your hotel to settle in and relax after your journey. The remainder of the day is at your leisure, allowing you to explore the immediate surroundings of your accommodation or simply unwind and prepare for the adventures that await you in the coming days. This initial transfer ensures a smooth start to your Bali experience, offering a comfortable and hassle-free transition to your chosen hotel.",
-          "meals": [],
-            "activityDetails": [
-            {
-              "name": "Bai Dinh Pagoda Visit",
-              "description": "Visit the sprawling Bai Dinh Pagoda complex, one of Southeast Asia's largest Buddhist sites. Wander among hundreds of ornate statues and step inside the impressive halls to learn about local spiritual traditions. Take time to enjoy panoramic views from the temple terraces and observe the peaceful monastic atmosphere."
-            },
-              "name": "Cycling in Trang An Village",
-              "description": "Cycle gentle lanes through rice paddies and riverside villages to experience authentic rural life. Pause to see traditional homes, local farmers at work, and scenic limestone karst backdrops. The easy-paced route is family-friendly and ideal for photography and casual exploration."
-            }
-          ]
-        },
-        {
-          "day": 2,
-          "title": "Tegenungan Waterfall & Kintamani Tour",
-          "description": "Embark on a full-day tour that begins with a visit to the majestic Tegenungan Waterfall, where you can marvel at the cascading waters and lush surroundings. Next, journey to Kintamani, renowned for its breathtaking volcano views. Immerse yourself in the world of coffee at an Agrotourism plantation, followed by an exhilarating experience at Alas Harum Bali Swing. Explore the historical Ubud Palace and delve into the artistic heritage of Celuk Mas village. Conclude your day with a visit to Bidadari Batik, where you can admire and purchase traditional Balinese textiles.",
-          "meals": ["Breakfast"],
-          "activityDetails": [
-            {
-              "name": "Tegenungan Waterfall Visit",
-              "description": "Marvel at the lush surroundings and thundering cascade of Tegenungan Waterfall, with time for photos and short walks along the viewing areas. Enjoy the refreshing mist and vantage points that highlight the waterfall's dramatic drop. The site offers easy access and short walking paths suitable for most travelers."
-            },
-            
-          ]
-        }
-      ],
      "accommodation": [
     {
       "name": "Solaris Kuta",
@@ -611,8 +571,64 @@ function createItineraryPrompt(): string {
           "shared": true,
           "details": "Upon arrival at Phu Quoc airport, you will be welcomed by our representative and transferred to Grand World for exploration and leisure activities."
         }
-      ],
+      ]
       
+    }
+    \`\`\`
+    Return only valid JSON without additional text or formatting.
+  `;
+}
+
+function createDailyItineraryPrompt(): string {
+  return `
+    Extract the daily itinerary information from the provided PDF.
+    Focus on the day-by-day activities and descriptions.
+     **JSON FORMATTING RULES (CRITICAL):**
+    - Return ONLY valid JSON, no markdown code blocks
+    - Use double quotes for all strings and property names
+    - Escape special characters in strings: use \\n for newlines, \\" for quotes
+    - NO trailing commas after the last item in arrays or objects
+    - NO comments in the JSON
+
+    **CRITICAL INSTRUCTIONS:**
+    1.  **ITINERARY:** For each day, provide a detailed 100+ word description, meals, and activities. Extract main daily events (tours, attractions, parks, temple visits, safaris, etc.), skipping non‑main/operational items (leisure, free time, meals, transfers, flights). For each activity return a 3–4 line paragraph, with Title Case trimmed names kept in the itinerary's original order.
+
+    **WRITING TONE:** Clear, accurate, and informative.
+    
+    **STRICTLY ADHERE** to the JSON schema.
+      **EXAMPLE OUTPUT:**
+
+    {
+      "itinerary": [
+        {
+          "day": 1,
+          "title": "Arrival in Bali",
+          "description": "Upon arrival at Bali airport, you will be greeted by our representative. You will then be transferred to your hotel to settle in and relax after your journey. The remainder of the day is at your leisure, allowing you to explore the immediate surroundings of your accommodation or simply unwind and prepare for the adventures that await you in the coming days. This initial transfer ensures a smooth start to your Bali experience, offering a comfortable and hassle-free transition to your chosen hotel.",
+          "meals": [],
+          "activityDetails": [
+            {
+              "name": "Bai Dinh Pagoda Visit",
+              "description": "Visit the sprawling Bai Dinh Pagoda complex, one of Southeast Asia's largest Buddhist sites. Wander among hundreds of ornate statues and step inside the impressive halls to learn about local spiritual traditions. Take time to enjoy panoramic views from the temple terraces and observe the peaceful monastic atmosphere."
+            },
+            {
+              "name": "Cycling in Trang An Village",
+              "description": "Cycle gentle lanes through rice paddies and riverside villages to experience authentic rural life. Pause to see traditional homes, local farmers at work, and scenic limestone karst backdrops. The easy-paced route is family-friendly and ideal for photography and casual exploration."
+            }
+          ]
+        },
+        {
+          "day": 2,
+          "title": "Tegenungan Waterfall & Kintamani Tour",
+          "description": "Embark on a full-day tour that begins with a visit to the majestic Tegenungan Waterfall, where you can marvel at the cascading waters and lush surroundings. Next, journey to Kintamani, renowned for its breathtaking volcano views. Immerse yourself in the world of coffee at an Agrotourism plantation, followed by an exhilarating experience at Alas Harum Bali Swing. Explore the historical Ubud Palace and delve into the artistic heritage of Celuk Mas village. Conclude your day with a visit to Bidadari Batik, where you can admire and purchase traditional Balinese textiles.",
+          "meals": ["Breakfast"],
+          "activityDetails": [
+            {
+              "name": "Tegenungan Waterfall Visit",
+              "description": "Marvel at the lush surroundings and thundering cascade of Tegenungan Waterfall, with time for photos and short walks along the viewing areas. Enjoy the refreshing mist and vantage points that highlight the waterfall's dramatic drop. The site offers easy access and short walking paths suitable for most travelers."
+            }
+          ]
+        }
+      ]
     }
     \`\`\`
     Return only valid JSON without additional text or formatting.
@@ -1052,6 +1068,7 @@ type ProgressCallback = (
 ) => void;
 
 // Process a single PDF file with progress updates
+// Process a single PDF file with progress updates
 export async function processPackagePdfWithProgress(
   packageId: string,
   pdfPath: string,
@@ -1082,54 +1099,69 @@ export async function processPackagePdfWithProgress(
     // Run extractions in parallel with individual progress updates
     const marketingPrompt = createMarketingPrompt();
     const itineraryPrompt = createItineraryPrompt();
+    const dailyItineraryPrompt = createDailyItineraryPrompt();
     const pricingPrompt = createPricingPrompt();
 
     onProgress(
       "extraction",
-      "Running AI extraction (Marketing, Itinerary, Pricing)...",
+      "Running AI extraction (Marketing, Itinerary, Daily Itinerary, Pricing)...",
       20
     );
 
-    const [marketingResult, itineraryResult, pricingResult] = await Promise.all(
-      [
-        executeExtraction(
-          pdfBuffer,
-          marketingPrompt,
-          getCreativeGenerationConfig(),
-          getMarketingSchema()
-        ).then((result) => {
-          onProgress("marketing", "Marketing data extracted", 35);
-          return result;
-        }),
-        executeExtraction(
-          pdfBuffer,
-          itineraryPrompt,
-          getDeterministicGenerationConfig(),
-          getItinerarySchema()
-        ).then((result) => {
-          onProgress("itinerary", "Itinerary data extracted", 50);
-          return result;
-        }),
-        executeExtraction(
-          pdfBuffer,
-          pricingPrompt,
-          getDeterministicGenerationConfig(),
-          getPricingSchema()
-        ).then((result) => {
-          onProgress("pricing", "Pricing data extracted", 65);
-          return result;
-        }),
-      ]
-    );
+    const [
+      marketingResult,
+      itineraryResult,
+      dailyItineraryResult,
+      pricingResult,
+    ] = await Promise.all([
+      executeExtraction(
+        pdfBuffer,
+        marketingPrompt,
+        getCreativeGenerationConfig(),
+        getMarketingSchema()
+      ).then((result) => {
+        onProgress("marketing", "Marketing data extracted", 30);
+        return result;
+      }),
+      executeExtraction(
+        pdfBuffer,
+        itineraryPrompt,
+        getDeterministicGenerationConfig(),
+        getItinerarySchema()
+      ).then((result) => {
+        onProgress("itinerary", "Accommodation & Transportation extracted", 42);
+        return result;
+      }),
+      executeExtraction(
+        pdfBuffer,
+        dailyItineraryPrompt,
+        getDeterministicGenerationConfig(),
+        getDailyItinerarySchema()
+      ).then((result) => {
+        onProgress("dailyItinerary", "Daily itinerary extracted", 54);
+        return result;
+      }),
+      executeExtraction(
+        pdfBuffer,
+        pricingPrompt,
+        getDeterministicGenerationConfig(),
+        getPricingSchema()
+      ).then((result) => {
+        onProgress("pricing", "Pricing data extracted", 65);
+        return result;
+      }),
+    ]);
 
     const [marketingData] = marketingResult;
     const [itineraryData] = itineraryResult;
+    const [dailyItineraryData] = dailyItineraryResult;
     const [pricingData] = pricingResult;
 
     // Merge the results from all tasks
     const packageData: PackageData = {
       ...marketingData,
       ...itineraryData,
+      ...dailyItineraryData,
       ...pricingData,
       defaultCurrency: "INR",
     };
