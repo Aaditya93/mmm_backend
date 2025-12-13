@@ -367,7 +367,7 @@ function createMarketingPrompt() {
     4.  **KEYWORDS:** Include SEO-focused keywords for the destination and experiences.
     5.  **AUDIO SUMMARY:** Create a conversational audio script in simple words, alternating between Speaker 1 and Speaker 2.
     6.  **SUMMARY:** Write <30 words. Must include: tour type, duration, hotel category, destination name, and 1–2 signature highlights.
-    7.  **LOCATIONS & ACTIVITIES:** List all locations visited and activities performed. list only top 10-15 activities.
+    7.  **LOCATIONS & ACTIVITIES:** List all locations visited and activities performed. list only top 10-15 activities. Focus on unique experiences and local culture. Get All the locations and activities from the pdf.
 
     **WRITING TONE:** Enthusiastic, sophisticated, and emotionally engaging.
     
