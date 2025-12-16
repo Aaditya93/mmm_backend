@@ -18,7 +18,6 @@ declare global {
   }
 }
 
-// Initialize Express app
 const app = express();
 const PORT = Number(process.env.PORT) || 3001;
 const HTTPS_PORT = Number(process.env.HTTPS_PORT) || 443;

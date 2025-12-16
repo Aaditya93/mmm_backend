@@ -8,7 +8,6 @@ import https from "https";
 import { execSync } from "child_process";
 import { processPackagePdfWithProgress } from "./ai.js";
 import { generatePdfController } from "./pdf.js";
-// Initialize Express app
 const app = express();
 const PORT = Number(process.env.PORT) || 3001;
 const HTTPS_PORT = Number(process.env.HTTPS_PORT) || 443;
