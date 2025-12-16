@@ -23,32 +23,13 @@ const app = express();
 const PORT = Number(process.env.PORT) || 3001;
 const HTTPS_PORT = Number(process.env.HTTPS_PORT) || 443;
 
-// Define allowed origins
-const allowedOrigins = [
-  "http://localhost:3000",
-  "https://api.makemypackages.com",
-  "https://main.d3cl9zxj5czhv3.amplifyapp.com",
-  "https://makemypackages.com",
-];
-
 app.use(
   cors({
-    origin: (origin, callback) => {
-      // 1. Allow requests with no origin (like mobile apps, curl, or server-to-server)
-      if (!origin) return callback(null, true);
-
-      // 2. Check if the origin is in the list
-      if (allowedOrigins.indexOf(origin) !== -1) {
-        return callback(null, true);
-      } else {
-        // 3. LOG THE FAILURE (This is how we debug)
-        console.log("CORS BLOCKED ORIGIN:", origin);
-        return callback(new Error("Not allowed by CORS"));
-      }
-    },
+    origin: true,
     credentials: true,
   })
 );
+
 // Middleware
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
