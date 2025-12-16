@@ -18,44 +18,22 @@ declare global {
   }
 }
 
+// Initialize Express app
 const app = express();
 const PORT = Number(process.env.PORT) || 3001;
 const HTTPS_PORT = Number(process.env.HTTPS_PORT) || 443;
 
-const allowedOrigins = new Set([
-  "http://localhost:3000",
-  "https://main.d3cl9zxj5czhv3.amplifyapp.com",
-  "https://www.makemypackages.com",
-  "https://makemypackages.com",
-]);
-
-const corsOptions: cors.CorsOptions = {
-  origin: (origin, cb) => {
-    // allow non-browser tools (no Origin header)
-    if (!origin) return cb(null, true);
-
-    if (allowedOrigins.has(origin)) {
-      // IMPORTANT: return the origin string so Access-Control-Allow-Origin is set
-      return cb(null, origin);
-    }
-
-    return cb(new Error(`Not allowed by CORS: ${origin}`));
-  },
-  credentials: true,
-  methods: ["GET", "POST", "OPTIONS", "PUT", "PATCH", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  optionsSuccessStatus: 204,
-};
-
-// Apply CORS early
-app.use(cors(corsOptions));
-
-// Explicitly handle preflight for this endpoint (guarantees CORS runs on OPTIONS)
-
-// Handle OPTIONS preflight explicitly if needed, but cors() usually handles it.
-// If you keep this manual handler, ensure headers are set.
-// REMOVED: app.options("*", cors(corsOptions));
-// The line above causes a crash with newer path-to-regexp versions and is redundant because app.use(cors()) handles preflight.
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "https://api.makemypackages.com",
+      "https://main.d3cl9zxj5czhv3.amplifyapp.com",
+      "https://makemypackages.com",
+    ],
+    credentials: true,
+  })
+);
 
 // Middleware
 app.use(express.json({ limit: "10mb" }));
