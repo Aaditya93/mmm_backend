@@ -25,7 +25,13 @@ const HTTPS_PORT = Number(process.env.HTTPS_PORT) || 443;
 
 app.use(
   cors({
-    origin: true,
+    origin: [
+      "http://localhost:3000",
+      "https://api.makemypackages.com",
+      "https://main.d3cl9zxj5czhv3.amplifyapp.com",
+      "https://makemypackages.com",
+      "https://www.makemypackages.com",
+    ],
     credentials: true,
   })
 );
