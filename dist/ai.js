@@ -418,11 +418,12 @@ function createItineraryPrompt() {
 
     **CRITICAL INSTRUCTIONS:**
     1.  **ACCOMMODATION:** Extract accommodation details (name, stars, roomType, details). Don't repeat hotel info if same for multiple nights.
-    2.  **TRANSPORTATION:** Extract transportation entries found in the PDF. The PDF may contain a table with columns like DAY / BRIEF ITINERARY / HOTEL / MEAL / NOTE / GUIDE. When a "NOTE" column contains PRV, PVT or PVT (private) mark shared: false. When it contains SIC mark shared: true. If NOTE is '-' or missing, default to shared: false. Map common wording in itinerary or brief itinerary column to vehicle types using these rules (case-insensitive):
+    2.  **TRANSPORTATION:** Never add Flights in Transfer. Extract transportation entries found in the PDF. The PDF may contain a table with columns like DAY / BRIEF ITINERARY / HOTEL / MEAL / NOTE / GUIDE. When a "NOTE" column contains PRV, PVT or PVT (private) mark shared: false. When it contains SIC mark shared: true. If NOTE is '-' or missing, default to shared: false. Map common wording in itinerary or brief itinerary column to vehicle types using these rules (case-insensitive):
       For each transportation item include: { type, title, vehicle, details, shared }.
       Get All the transportation entries from the pdf. Note it is  neessary to get all the transportation entries from the pdf.
       When the PDF uses abbreviations PRV/PVT/SIC, decode them exactly: PRV/PVT -> shared: false, SIC -> shared: true.
       Focus more On SIC vs PVT/PRV for shared field rather than vehicle type. 
+      Don't add Flights in Transportation.
    
 
     **WRITING TONE:** Clear, accurate, and informative.
