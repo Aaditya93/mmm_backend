@@ -6,7 +6,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import * as dotenv from "dotenv";
 import dbConnect from "./db/connection.js";
 import Package from "./db/Package.js";
-import { generateAudioSummary } from "./audio.js"; // Add this import
+import { generateAudioSummary } from "./audio.js";
 import { generateEmbedding } from "./embedding.js";
 import mammoth from "mammoth";
 dotenv.config();
