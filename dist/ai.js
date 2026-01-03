@@ -9,6 +9,7 @@ import Package from "./db/Package.js";
 import { generateAudioSummary } from "./audio.js";
 import { generateEmbedding } from "./embedding.js";
 import mammoth from "mammoth";
+// test comment
 dotenv.config();
 // Initialize Gemini AI client
 function initializeGeminiClient() {
@@ -802,6 +803,31 @@ async function downloadToTempFile(url) {
         throw new Error(`Failed to download file: ${error}`);
     }
 }
+/**
+ * Generate 3 unique image URLs based on destination
+ */
+function generateImageUrls(destination) {
+    const baseImgUrl = "https://travel-images1234.s3.ap-south-1.amazonaws.com";
+    const images = [];
+    // Split by '+' to handle combined destinations (e.g., "Bali + Vietnam")
+    const folders = destination
+        .split("+")
+        .map((s) => s.trim())
+        .filter((s) => s.length > 0);
+    if (folders.length === 0)
+        folders.push(destination);
+    const used = new Set();
+    while (images.length < 3) {
+        const folder = folders[Math.floor(Math.random() * folders.length)];
+        const n = Math.floor(Math.random() * 25) + 1;
+        const imgPath = `${folder}/${folder}_${n}.webp`;
+        if (used.has(imgPath))
+            continue;
+        used.add(imgPath);
+        images.push(`${baseImgUrl}/${imgPath}`);
+    }
+    return images;
+}
 // Process a single PDF file
 export async function processPackagePdf(packageId, pdfPath, destination) {
     let localPath = pdfPath;
@@ -851,22 +877,8 @@ export async function processPackagePdf(packageId, pdfPath, destination) {
         }
         // Ensure imageUrl array with 3 unique images based on destination
         try {
-            const baseImgUrl = "https://travel-images1234.s3.ap-south-1.amazonaws.com";
-            const rawDest = destination;
-            // Normalize destination folder/name (remove extra spaces, keep capitalization)
-            const dest = rawDest;
-            const images = [];
-            const used = new Set();
-            while (images.length < 3) {
-                // generate unique numbers in range 1..25 (inclusive)
-                const n = Math.floor(Math.random() * 25) + 1; // 1..25
-                if (used.has(n))
-                    continue;
-                used.add(n);
-                images.push(`${baseImgUrl}/${dest}/${dest}_${n}.webp`);
-            }
-            packageData.imageUrl = images;
-            console.log("Generated imageUrl array:", images);
+            packageData.imageUrl = generateImageUrls(destination);
+            console.log("Generated imageUrl array:", packageData.imageUrl);
         }
         catch (imgErr) {
             console.warn("Failed to generate imageUrl array:", imgErr);
@@ -985,18 +997,7 @@ export async function processPackagePdfWithProgress(packageId, pdfPath, destinat
         // Generate image URLs
         onProgress("images", "Generating image URLs...", 88);
         try {
-            const baseImgUrl = "https://travel-images1234.s3.ap-south-1.amazonaws.com";
-            const dest = destination;
-            const images = [];
-            const used = new Set();
-            while (images.length < 3) {
-                const n = Math.floor(Math.random() * 25) + 1;
-                if (used.has(n))
-                    continue;
-                used.add(n);
-                images.push(`${baseImgUrl}/${dest}/${dest}_${n}.webp`);
-            }
-            packageData.imageUrl = images;
+            packageData.imageUrl = generateImageUrls(destination);
             onProgress("images", "Image URLs generated", 90);
         }
         catch (imgErr) {
