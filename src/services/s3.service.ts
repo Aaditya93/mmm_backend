@@ -2,15 +2,14 @@ import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { v4 as uuidv4 } from "uuid";
 import { readFile, unlink } from "fs/promises";
 import path from "path";
-import dotenv from "dotenv";
 
-dotenv.config(); // Load .env variables
+import { config } from "../config/index.js";
 
 const s3Client = new S3Client({
-  region: process.env.AWS_REGION || "us-east-1",
+  region: config.aws.region,
   credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+    accessKeyId: config.aws.accessKeyId!,
+    secretAccessKey: config.aws.secretAccessKey!,
   },
 });
 

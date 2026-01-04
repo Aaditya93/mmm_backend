@@ -1,149 +1,14 @@
-/**
- * Package Model
- * @description Defines the Mongoose schema and model for a travel package entity.
- * @interface IPackage - TypeScript interface for the Package document structure.
- * @schema packageSchema - Mongoose schema enforcing data validation and structure.
- * @model Package - The compiled Mongoose model for interacting with the Package collection in MongoDB.
- * @returns {mongoose.Model<IPackage>} The Package model instance.
- */
 import mongoose from "mongoose";
+import {
+  IHotelStay,
+  IItinerary,
+  IAccommodation,
+  ITransportation,
+  ITravelers,
+  IFlight,
+  IPackage
+} from "./types.js";
 
-export interface IHotelStay {
-  place: string;
-  hotelName: string;
-  roomCategory: string;
-  nights: number;
-  checkIn: Date;
-  checkOut: Date;
-  bookingNumber: string;
-  adults: number;
-  children: number;
-  mealPlan: string;
-}
-
-export interface IItinerary {
-  day: number;
-  title: string;
-  description: string;
-  meals: string[];
-
-  activityDetails: IActivity[];
-}
-
-export interface IAccommodation {
-  name: string;
-  stars: number;
-  roomType: string;
-  details: string;
-}
-
-export interface ITransportation {
-  type: string;
-  title: string;
-  vehicle: string;
-  details: string;
-  shared: boolean;
-}
-
-export interface ITravelers {
-  adults: number;
-  children: number;
-}
-
-export interface IActivity {
-  name: string;
-  description: string;
-}
-
-export interface IFlight {
-  airline: string;
-  flightNumber: string;
-  dayNumber: number;
-
-  departure: {
-    city: string;
-
-    dateTime: Date | string;
-    time: string;
-  };
-  arrival: {
-    city: string;
-
-    dateTime: Date | string;
-    time: string;
-  };
-  duration: string; // e.g. "12h 15m"
-  layovers: {
-    location: string;
-    duration: string; // e.g. "2h 30m"
-  }[];
-
-  baggage: {
-    checkInKg: number;
-    cabinKg: number;
-  };
-  price: number;
-  currency: string;
-}
-
-export interface IPackage {
-  _id: string;
-  title: string;
-  isLive: boolean;
-  keywords: string[];
-  days: number;
-  nights: number;
-  startDate: Date;
-  endDate: Date;
-  locations: string[];
-  activities: string[];
-  highlights: string[];
-  description: string;
-  travelers: ITravelers;
-  audioSummary: string;
-  destination: string;
-  itinerary: IItinerary[];
-  summary: string;
-  accommodation: IAccommodation[];
-  transportation: ITransportation[];
-  flights?: IFlight[]; // <-- added flights array
-  inclusions: string[];
-  exclusions: string[];
-  notes: string[];
-  bookingDeadline: Date;
-  imageUrl: [string];
-  audioUrl: string;
-  hotelStays: IHotelStay[];
-  hotelStaysLink: string;
-  price: {
-    threeStar: number;
-    fourStar: number;
-    fiveStar: number;
-    currency: string;
-  };
-  currency: string;
-  priceData: {
-    price: number;
-    type: "Adult" | "Child";
-    currency: string;
-    details: string;
-  }[];
-  visa: {
-    price: number;
-    currency: string;
-    details: string;
-    type: "Adult" | "Child";
-  }[];
-  defaultCurrency: string;
-  packageUrl: string;
-  isProcessed: boolean;
-  createdBy: mongoose.Types.ObjectId | string;
-
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-// ...existing code...
 const hotelStaySchema = new mongoose.Schema<IHotelStay>({
   place: { type: String },
   hotelName: { type: String },
@@ -156,14 +21,13 @@ const hotelStaySchema = new mongoose.Schema<IHotelStay>({
   children: { type: Number },
   mealPlan: { type: String },
 });
-// ...existing code...
 
 const itinerarySchema = new mongoose.Schema<IItinerary>({
   day: { type: Number },
   title: { type: String },
   description: { type: String },
   meals: { type: [String] },
-  activityDetails: { type: [{ name: String, description: String }] }, // new field
+  activityDetails: { type: [{ name: String, description: String }] },
 });
 
 const accommodationSchema = new mongoose.Schema<IAccommodation>({
@@ -187,13 +51,11 @@ const flightSchema = new mongoose.Schema<IFlight>({
   dayNumber: { type: Number },
   departure: {
     city: { type: String },
-
     dateTime: { type: Date },
     time: { type: String },
   },
   arrival: {
     city: { type: String },
-
     dateTime: { type: Date },
     time: { type: String },
   },
@@ -204,7 +66,6 @@ const flightSchema = new mongoose.Schema<IFlight>({
       duration: { type: String },
     },
   ],
-
   baggage: {
     checkInKg: { type: Number },
     cabinKg: { type: Number },
@@ -240,7 +101,7 @@ const packageSchema = new mongoose.Schema<IPackage>(
     itinerary: { type: [itinerarySchema] },
     accommodation: { type: [accommodationSchema] },
     transportation: { type: [transportationSchema] },
-    flights: { type: [flightSchema] }, // <-- added flights schema entry
+    flights: { type: [flightSchema] },
     inclusions: { type: [String] },
     exclusions: { type: [String] },
     notes: { type: [String] },
@@ -257,7 +118,6 @@ const packageSchema = new mongoose.Schema<IPackage>(
         details: { type: String },
       },
     ],
-
     price: {
       threeStar: { type: Number },
       fourStar: { type: Number },

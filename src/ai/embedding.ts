@@ -1,11 +1,8 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import * as dotenv from "dotenv";
 
-dotenv.config();
+import { config } from "../config/index.js";
 
-const genAI = new GoogleGenerativeAI(
-  process.env.GOOGLE_GENERATIVE_AI_API_KEY_PAID || ""
-);
+const genAI = new GoogleGenerativeAI(config.google.paidApiKey || "");
 
 /**
  * Generates a vector embedding for a given text using Google's embedding-001 model.

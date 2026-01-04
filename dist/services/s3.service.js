@@ -2,7 +2,7 @@ import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { v4 as uuidv4 } from "uuid";
 import { readFile } from "fs/promises";
 import path from "path";
-import { config } from "./config/index.js";
+import { config } from "../config/index.js";
 const s3Client = new S3Client({
     region: config.aws.region,
     credentials: {

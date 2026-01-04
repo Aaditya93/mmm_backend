@@ -1,13 +1,4 @@
-/**
- * Package Model
- * @description Defines the Mongoose schema and model for a travel package entity.
- * @interface IPackage - TypeScript interface for the Package document structure.
- * @schema packageSchema - Mongoose schema enforcing data validation and structure.
- * @model Package - The compiled Mongoose model for interacting with the Package collection in MongoDB.
- * @returns {mongoose.Model<IPackage>} The Package model instance.
- */
 import mongoose from "mongoose";
-// ...existing code...
 const hotelStaySchema = new mongoose.Schema({
     place: { type: String },
     hotelName: { type: String },
@@ -20,13 +11,12 @@ const hotelStaySchema = new mongoose.Schema({
     children: { type: Number },
     mealPlan: { type: String },
 });
-// ...existing code...
 const itinerarySchema = new mongoose.Schema({
     day: { type: Number },
     title: { type: String },
     description: { type: String },
     meals: { type: [String] },
-    activityDetails: { type: [{ name: String, description: String }] }, // new field
+    activityDetails: { type: [{ name: String, description: String }] },
 });
 const accommodationSchema = new mongoose.Schema({
     name: { type: String },
@@ -94,7 +84,7 @@ const packageSchema = new mongoose.Schema({
     itinerary: { type: [itinerarySchema] },
     accommodation: { type: [accommodationSchema] },
     transportation: { type: [transportationSchema] },
-    flights: { type: [flightSchema] }, // <-- added flights schema entry
+    flights: { type: [flightSchema] },
     inclusions: { type: [String] },
     exclusions: { type: [String] },
     notes: { type: [String] },
