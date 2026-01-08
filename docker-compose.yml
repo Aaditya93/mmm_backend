@@ -1,0 +1,21 @@
+version: "3.8"
+services:
+  mmp_backend:
+    image: mmp_backend
+    container_name: mmp_backend_container
+    ports:
+      - "${PORT}:${PORT}"
+    environment:
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_REGION: ${AWS_REGION}
+      GOOGLE_GENERATIVE_AI_API_KEY: ${GOOGLE_GENERATIVE_AI_API_KEY}
+      GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS}
+      MONGODB_URI: ${MONGODB_URI}
+      GOOGLE_GENERATIVE_AI_API_KEY_PAID: ${GOOGLE_GENERATIVE_AI_API_KEY_PAID}
+      AWS_S3_BUCKET_NAME: ${AWS_S3_BUCKET_NAME}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      NODE_ENV: ${NODE_ENV}
+      PORT: ${PORT}
+      HTTPS_PORT: ${HTTPS_PORT}
+      USE_SSL: ${USE_SSL}

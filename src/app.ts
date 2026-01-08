@@ -10,8 +10,6 @@ app.use(
     origin: [
       "http://localhost:3000",
       "https://api.makemypackages.com",
-      "https://main.d3cl9zxj5czhv3.amplifyapp.com",
-      "https://makemypackages.com",
       "https://www.makemypackages.com",
     ],
     credentials: true,

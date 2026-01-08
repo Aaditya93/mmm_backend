@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tsc -b"
+    "build": "tsc -b",
+    "test": "vitest"
   },
   "keywords": [],
   "author": "",
