@@ -118,12 +118,8 @@ export async function extractPackageData(
       );
     }
 
-    const [
-      marketingResult,
-      itineraryResult,
-      dailyItineraryResult,
-      pricingResult,
-    ] = await Promise.all([
+    // Process in batches of two to reduce memory pressure
+    const group1 = await Promise.all([
       executeExtraction(
         pdfBuffer,
         marketingPrompt,
@@ -149,6 +145,9 @@ export async function extractPackageData(
           );
         return result;
       }),
+    ]);
+
+    const group2 = await Promise.all([
       executeExtraction(
         pdfBuffer,
         dailyItineraryPrompt,
@@ -171,6 +170,9 @@ export async function extractPackageData(
         return result;
       }),
     ]);
+
+    const [marketingResult, itineraryResult] = group1;
+    const [dailyItineraryResult, pricingResult] = group2;
 
     const [marketingData] = marketingResult;
     const [itineraryData] = itineraryResult;

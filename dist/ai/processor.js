@@ -31,7 +31,8 @@ export async function processPackagePdfWithProgress(packageId, pdfPath, destinat
         const dailyItineraryPrompt = createDailyItineraryPrompt();
         const pricingPrompt = createPricingPrompt();
         onProgress("extraction", "Running AI extraction (Marketing, Itinerary, Daily Itinerary, Pricing)...", 20);
-        const [marketingResult, itineraryResult, dailyItineraryResult, pricingResult,] = await Promise.all([
+        // Process in batches of two to reduce memory pressure on small EC2 instances
+        const group1 = await Promise.all([
             executeExtraction(pdfBuffer, marketingPrompt, getCreativeGenerationConfig(), getMarketingSchema(), mimeType).then((result) => {
                 onProgress("marketing", "Marketing data extracted", 30);
                 return result;
@@ -40,6 +41,8 @@ export async function processPackagePdfWithProgress(packageId, pdfPath, destinat
                 onProgress("itinerary", "Accommodation & Transportation extracted", 42);
                 return result;
             }),
+        ]);
+        const group2 = await Promise.all([
             executeExtraction(pdfBuffer, dailyItineraryPrompt, getDeterministicGenerationConfig(), getDailyItinerarySchema(), mimeType).then((result) => {
                 onProgress("dailyItinerary", "Daily itinerary extracted", 54);
                 return result;
@@ -49,6 +52,8 @@ export async function processPackagePdfWithProgress(packageId, pdfPath, destinat
                 return result;
             }),
         ]);
+        const [marketingResult, itineraryResult] = group1;
+        const [dailyItineraryResult, pricingResult] = group2;
         const [marketingData] = marketingResult;
         const [itineraryData] = itineraryResult;
         const [dailyItineraryData] = dailyItineraryResult;

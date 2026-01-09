@@ -71,12 +71,8 @@ export async function processPackagePdfWithProgress(
       20
     );
 
-    const [
-      marketingResult,
-      itineraryResult,
-      dailyItineraryResult,
-      pricingResult,
-    ] = await Promise.all([
+    // Process in batches of two to reduce memory pressure on small EC2 instances
+    const group1 = await Promise.all([
       executeExtraction(
         pdfBuffer,
         marketingPrompt,
@@ -97,6 +93,9 @@ export async function processPackagePdfWithProgress(
         onProgress("itinerary", "Accommodation & Transportation extracted", 42);
         return result;
       }),
+    ]);
+
+    const group2 = await Promise.all([
       executeExtraction(
         pdfBuffer,
         dailyItineraryPrompt,
@@ -118,6 +117,9 @@ export async function processPackagePdfWithProgress(
         return result;
       }),
     ]);
+
+    const [marketingResult, itineraryResult] = group1;
+    const [dailyItineraryResult, pricingResult] = group2;
 
     const [marketingData] = marketingResult;
     const [itineraryData] = itineraryResult;

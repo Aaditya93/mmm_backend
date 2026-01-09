@@ -97,14 +97,7 @@ ${scriptContent}`,
         let fileExtension = mime.getExtension(inlineData.mimeType || "") || "";
         let buffer: Buffer;
 
-        console.log(
-          `Received audio data: ${inlineData.mimeType}, detected extension: ${fileExtension}`
-        );
-
         if (fileExtension !== "wav") {
-          console.log(
-            `Converting ${inlineData.mimeType || "unknown"} to WAV format`
-          );
           buffer = convertToWav(
             inlineData.data || "",
             inlineData.mimeType || ""
@@ -115,13 +108,11 @@ ${scriptContent}`,
 
         const tempWavPath = path.join(tempDir, `${fileName}.wav`);
         await saveBinaryFile(tempWavPath, buffer);
-        console.log(`✅ WAV file saved to temp: ${tempWavPath}`);
 
         const tempMp3Path = path.join(tempDir, `${fileName}.mp3`);
         try {
-          console.log(`🔄 Converting WAV to MP3...`);
           await convertToMp3(tempWavPath, tempMp3Path);
-          console.log(`✅ MP3 created in temp: ${tempMp3Path}`);
+
           uploadFilePath = tempMp3Path;
           await fs.rm(tempWavPath, { force: true });
         } catch (err) {
@@ -132,14 +123,11 @@ ${scriptContent}`,
     }
 
     if (uploadFilePath) {
-      console.log(`🚀 Uploading to S3: ${uploadFilePath}`);
       audioUrl = await uploadAudioToS3(uploadFilePath, bucketName);
-      console.log(`✅ Audio file uploaded to S3: ${audioUrl}`);
     }
   } finally {
     try {
       await fs.rm(tempDir, { recursive: true, force: true });
-      console.log("🗑️  Temp directory cleaned up");
     } catch (error) {
       console.warn("⚠️  Failed to clean up temp directory:", error);
     }
