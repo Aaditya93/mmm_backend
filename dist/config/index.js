@@ -19,8 +19,7 @@ export const config = {
     },
     google: {
         apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
-        paidApiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY_PAID ||
-            process.env.GOOGLE_GENERATIVE_AI_API_KEY,
+        paidApiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY_PAID,
     },
 };
 if (!config.mongodbUri) {

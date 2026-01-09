@@ -59,7 +59,6 @@ export async function uploadAudioToS3(
       process.env.AWS_REGION || "us-east-1"
     }.amazonaws.com/${fileKey}`;
 
-    console.log(`File uploaded to S3: ${publicUrl} (${mimeType})`);
     return publicUrl;
   } catch (error) {
     console.error("Error uploading to S3:", error);

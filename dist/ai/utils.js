@@ -35,37 +35,44 @@ export async function downloadToTempFile(url) {
             : "application/pdf";
         const tempFilePath = path.join(os.tmpdir(), `pkg_${Date.now()}${extension}`);
         const writer = fs.createWriteStream(tempFilePath);
-        response.data.pipe(writer);
         return new Promise((resolve, reject) => {
-            writer.on("finish", () => resolve({ filePath: tempFilePath, mimeType }));
-            writer.on("error", reject);
+            response.data.pipe(writer);
+            let error = null;
+            writer.on("error", (err) => {
+                error = err;
+                writer.close();
+                reject(err);
+            });
+            response.data.on("error", (err) => {
+                error = err;
+                writer.close();
+                reject(err);
+            });
+            writer.on("finish", () => {
+                if (!error) {
+                    resolve({ filePath: tempFilePath, mimeType });
+                }
+            });
         });
     }
     catch (error) {
         throw new Error(`Failed to download file: ${error}`);
     }
 }
-export function savePackageData(packageData, outputPath) {
-    try {
-        fs.writeFileSync(outputPath, JSON.stringify(packageData, null, 2), "utf-8");
-        console.log(`Package data saved to: ${outputPath}`);
-    }
-    catch (error) {
-        throw new Error(`Failed to save package data: ${error}`);
-    }
-}
 export async function savePackageToDb(packageId, packageData) {
     try {
         const convertedData = { ...packageData };
-        if (convertedData.startDate && typeof convertedData.startDate === 'string') {
+        if (convertedData.startDate &&
+            typeof convertedData.startDate === "string") {
             const [day, month, year] = convertedData.startDate.split("-").map(Number);
             convertedData.startDate = new Date(year, month - 1, day);
         }
-        if (convertedData.endDate && typeof convertedData.endDate === 'string') {
+        if (convertedData.endDate && typeof convertedData.endDate === "string") {
             const [day, month, year] = convertedData.endDate.split("-").map(Number);
             convertedData.endDate = new Date(year, month - 1, day);
         }
-        if (convertedData.bookingDeadline && typeof convertedData.bookingDeadline === 'string') {
+        if (convertedData.bookingDeadline &&
+            typeof convertedData.bookingDeadline === "string") {
             const [month, day, year] = convertedData.bookingDeadline
                 .split("/")
                 .map(Number);
@@ -90,8 +97,6 @@ export async function savePackageToDb(packageId, packageData) {
         const res = await Package.findByIdAndUpdate(packageId, convertedData, {
             upsert: true,
         });
-        console.log("MongoDB upsert result:", res);
-        console.log(`Package data saved to MongoDB for: ${packageData.title}`);
     }
     catch (error) {
         console.error("Error saving package to DB:", error);

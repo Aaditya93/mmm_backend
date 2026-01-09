@@ -21,100 +21,12 @@ import { executeExtraction, extractPackageData } from "./extractor.js";
 import {
   downloadToTempFile,
   generateImageUrls,
-  savePackageData,
   savePackageToDb,
 } from "./utils.js";
 
 import { generateAudioSummary } from "../audio/index.js";
 
 import { generateEmbedding } from "./embedding.js";
-
-export async function processPackagePdf(
-  packageId: string,
-  pdfPath: string,
-  destination: string
-): Promise<PackageData> {
-  let localPath = pdfPath;
-  let downloadedTemp = false;
-
-  const { filePath } = await downloadToTempFile(pdfPath);
-  localPath = filePath;
-  downloadedTemp = true;
-
-  if (!fs.existsSync(localPath)) {
-    throw new Error(`PDF file not found: ${localPath}`);
-  }
-
-  const startTime = performance.now();
-  console.log(`\nProcessing PDF: ${path.basename(localPath)}`);
-
-  try {
-    const { data: packageData } = await extractPackageData(localPath);
-    packageData.destination = destination;
-    packageData.isProcessed = true;
-    packageData.isLive = false;
-
-    try {
-      const textToEmbed =
-        packageData.summary && String(packageData.summary).trim();
-      if (textToEmbed) {
-        console.log("Generating embedding...");
-        const embedding = await generateEmbedding(textToEmbed);
-        (packageData as any).summaryEmbedding = embedding;
-        console.log("Embedding generated. Vector length:", embedding.length);
-      }
-    } catch (embedError) {
-      console.error("Failed to generate embedding:", embedError);
-    }
-
-    try {
-      if (packageData.audioSummary) {
-        console.log("Generating audio summary...");
-        const audioResult = await generateAudioSummary(
-          packageData.audioSummary
-        );
-        packageData.audioUrl = audioResult.audioUrl;
-        console.log(
-          `Audio generated and uploaded. URL: ${audioResult.audioUrl}`
-        );
-      }
-    } catch (audioError) {
-      console.error("Failed to generate audio summary:", audioError);
-    }
-
-    try {
-      packageData.imageUrl = generateImageUrls(destination);
-      console.log("Generated imageUrl array:", packageData.imageUrl);
-    } catch (imgErr) {
-      console.warn("Failed to generate imageUrl array:", imgErr);
-    }
-
-    console.log("Saving package data to database...");
-    savePackageData(
-      packageData,
-      "output_" + path.basename(localPath, path.extname(localPath)) + ".json"
-    );
-    await savePackageToDb(packageId, packageData);
-
-    const elapsed = (performance.now() - startTime) / 1000;
-    console.log(
-      `Total time for processing '${path.basename(
-        localPath
-      )}': ${elapsed.toFixed(2)} seconds`
-    );
-
-    return packageData;
-  } finally {
-    try {
-      if (downloadedTemp && fs.existsSync(localPath)) {
-        fs.unlinkSync(localPath);
-        console.log(`Deleted temp file: ${localPath}`);
-      }
-    } catch (cleanupErr) {
-      console.warn(`Failed to delete temp file ${localPath}:`, cleanupErr);
-    }
-  }
-}
 
 export async function processPackagePdfWithProgress(
   packageId: string,
@@ -135,7 +47,7 @@ export async function processPackagePdfWithProgress(
   }
 
   const startTime = performance.now();
-  console.log(`\nProcessing PDF: ${path.basename(localPath)}`);
+
   onProgress("download", "PDF downloaded successfully", 10);
 
   try {
@@ -231,7 +143,6 @@ export async function processPackagePdfWithProgress(
       if (textToEmbed) {
         const embedding = await generateEmbedding(textToEmbed);
         (packageData as any).summaryEmbedding = embedding;
-        console.log("Embedding generated. Vector length:", embedding.length);
       }
       onProgress("embedding", "Embedding generated successfully", 75);
     } catch (embedError) {
@@ -246,7 +157,7 @@ export async function processPackagePdfWithProgress(
           packageData.audioSummary
         );
         packageData.audioUrl = audioResult.audioUrl;
-        console.log(`Audio generated. URL: ${audioResult.audioUrl}`);
+
         onProgress("audio", "Audio summary generated", 85);
       }
     } catch (audioError) {
@@ -267,7 +178,6 @@ export async function processPackagePdfWithProgress(
     onProgress("database", "Package saved to database", 98);
 
     const elapsed = (performance.now() - startTime) / 1000;
-    console.log(`Total time: ${elapsed.toFixed(2)} seconds`);
     onProgress(
       "complete",
       `Processing complete in ${elapsed.toFixed(1)}s`,
@@ -279,7 +189,6 @@ export async function processPackagePdfWithProgress(
     try {
       if (downloadedTemp && fs.existsSync(localPath)) {
         fs.unlinkSync(localPath);
-        console.log(`Deleted temp file: ${localPath}`);
       }
     } catch (cleanupErr) {
       console.warn(`Failed to delete temp file ${localPath}:`, cleanupErr);

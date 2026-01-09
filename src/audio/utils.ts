@@ -1,6 +1,9 @@
 import { writeFile } from "fs";
 
-export function saveBinaryFile(fileName: string, content: Buffer): Promise<void> {
+export function saveBinaryFile(
+  fileName: string,
+  content: Buffer
+): Promise<void> {
   return new Promise((resolve, reject) => {
     writeFile(fileName, content, (err) => {
       if (err) {
@@ -8,7 +11,7 @@ export function saveBinaryFile(fileName: string, content: Buffer): Promise<void>
         reject(err);
         return;
       }
-      console.log(`File ${fileName} saved to file system.`);
+
       resolve();
     });
   });

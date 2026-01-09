@@ -45,7 +45,6 @@ export async function executeExtraction(fileBuffer, prompt, generationConfig, sc
         },
         prompt,
     ], genOptions);
-    console.log("token usage:", result.response.usageMetadata?.totalTokenCount);
     let responseText = result.response.text();
     responseText = responseText.trim();
     if (responseText.startsWith("```json")) {

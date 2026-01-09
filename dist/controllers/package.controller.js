@@ -2,15 +2,10 @@ import { processPackagePdfWithProgress } from "../ai/processor.js";
 export const createPackage = async (req, res) => {
     try {
         const { packageId, packageUrl, destination } = req.body;
-        console.log("Received /create-package request:", {
-            packageId,
-            packageUrl,
-            destination,
-        });
-        if (!packageUrl || !destination) {
+        if (!packageId || !packageUrl || !destination) {
             return res.status(400).json({
                 success: false,
-                message: "packageUrl and destination are required",
+                message: "packageId, packageUrl and destination are required",
             });
         }
         // SSE headers + disable buffering for proxies (nginx)
@@ -34,7 +29,6 @@ export const createPackage = async (req, res) => {
         // detect client disconnect
         const onClose = () => {
             clearInterval(heartbeat);
-            console.log("SSE connection closed by client");
         };
         req.on("close", onClose);
         // Helper to send progress updates
@@ -52,7 +46,6 @@ export const createPackage = async (req, res) => {
             }
         };
         const packageData = await processPackagePdfWithProgress(packageId, packageUrl, destination, sendProgress);
-        console.log("Package created successfully:", packageData);
         // Send final response
         res.write(`data: ${JSON.stringify({
             type: "complete",

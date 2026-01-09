@@ -11,7 +11,6 @@ const genAI = new GoogleGenerativeAI(config.google.paidApiKey || "");
  */
 export async function generateEmbedding(text: string): Promise<number[]> {
   if (!text || text.trim() === "") {
-    console.warn("Embedding generation skipped: input text is empty.");
     return [];
   }
 

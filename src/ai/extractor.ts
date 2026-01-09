@@ -43,7 +43,8 @@ export async function executeExtraction(
   }
 
   let inlinePayload: { data: string; mimeType: string };
-  const docxMime = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+  const docxMime =
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 
   if (mimeType === docxMime) {
     try {
@@ -55,7 +56,9 @@ export async function executeExtraction(
         mimeType: "text/plain",
       };
     } catch (err: any) {
-      throw new Error(`Failed to extract text from DOCX: ${err?.message || err}`);
+      throw new Error(
+        `Failed to extract text from DOCX: ${err?.message || err}`
+      );
     }
   } else {
     inlinePayload = {
@@ -73,7 +76,6 @@ export async function executeExtraction(
     ],
     genOptions
   );
-  console.log("token usage:", result.response.usageMetadata?.totalTokenCount);
 
   let responseText = result.response.text();
   responseText = responseText.trim();
@@ -109,7 +111,11 @@ export async function extractPackageData(
     const pricingPrompt = createPricingPrompt();
 
     if (onProgress) {
-      onProgress("extraction", "Running AI extraction (Marketing, Itinerary, Daily Itinerary, Pricing)...", 20);
+      onProgress(
+        "extraction",
+        "Running AI extraction (Marketing, Itinerary, Daily Itinerary, Pricing)...",
+        20
+      );
     }
 
     const [
@@ -135,7 +141,12 @@ export async function extractPackageData(
         getItinerarySchema(),
         mimeType
       ).then((result) => {
-        if (onProgress) onProgress("itinerary", "Accommodation & Transportation extracted", 42);
+        if (onProgress)
+          onProgress(
+            "itinerary",
+            "Accommodation & Transportation extracted",
+            42
+          );
         return result;
       }),
       executeExtraction(
@@ -145,7 +156,8 @@ export async function extractPackageData(
         getDailyItinerarySchema(),
         mimeType
       ).then((result) => {
-        if (onProgress) onProgress("dailyItinerary", "Daily itinerary extracted", 54);
+        if (onProgress)
+          onProgress("dailyItinerary", "Daily itinerary extracted", 54);
         return result;
       }),
       executeExtraction(

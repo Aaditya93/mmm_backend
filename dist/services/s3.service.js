@@ -43,7 +43,6 @@ export async function uploadAudioToS3(filePath, bucketName, customMimeType) {
         await s3Client.send(command);
         // Return public URL
         const publicUrl = `https://${bucketName}.s3.${process.env.AWS_REGION || "us-east-1"}.amazonaws.com/${fileKey}`;
-        console.log(`File uploaded to S3: ${publicUrl} (${mimeType})`);
         return publicUrl;
     }
     catch (error) {

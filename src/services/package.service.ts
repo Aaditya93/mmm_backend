@@ -8,17 +8,23 @@ export async function savePackageToDb(
 ): Promise<void> {
   try {
     const convertedData: any = { ...packageData };
-    
+
     // Convert date strings to Date objects
-    if (convertedData.startDate && typeof convertedData.startDate === 'string') {
+    if (
+      convertedData.startDate &&
+      typeof convertedData.startDate === "string"
+    ) {
       const [day, month, year] = convertedData.startDate.split("-").map(Number);
       convertedData.startDate = new Date(year, month - 1, day);
     }
-    if (convertedData.endDate && typeof convertedData.endDate === 'string') {
+    if (convertedData.endDate && typeof convertedData.endDate === "string") {
       const [day, month, year] = convertedData.endDate.split("-").map(Number);
       convertedData.endDate = new Date(year, month - 1, day);
     }
-    if (convertedData.bookingDeadline && typeof convertedData.bookingDeadline === 'string') {
+    if (
+      convertedData.bookingDeadline &&
+      typeof convertedData.bookingDeadline === "string"
+    ) {
       const [month, day, year] = convertedData.bookingDeadline
         .split("/")
         .map(Number);
@@ -45,8 +51,6 @@ export async function savePackageToDb(
     const res = await Package.findByIdAndUpdate(packageId, convertedData, {
       upsert: true,
     });
-    console.log("MongoDB upsert result:", res);
-    console.log(`Package data saved to MongoDB for: ${packageData.title}`);
   } catch (error) {
     console.error("Error saving package to DB:", error);
     throw new Error(`Failed to save package to DB: ${error}`);

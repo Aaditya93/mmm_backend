@@ -21,7 +21,9 @@ async function startServer() {
                 const httpRedirectApp = express();
                 httpRedirectApp.use((req, res) => {
                     const host = (req.headers.host || "").split(":")[0];
-                    const targetPort = config.httpsPort && config.httpsPort !== 443 ? `:${config.httpsPort}` : "";
+                    const targetPort = config.httpsPort && config.httpsPort !== 443
+                        ? `:${config.httpsPort}`
+                        : "";
                     res.redirect(301, `https://${host}${targetPort}${req.url}`);
                 });
                 httpRedirectApp.listen(config.port, () => {
@@ -48,14 +50,23 @@ function startHttpServer() {
     const httpServer = http.createServer(app);
     httpServer.listen(config.port, "0.0.0.0", () => {
         console.log(`✅ HTTP Server running on port ${config.port}`);
-        console.log(`🌐 MakemyPackages Email Scanner Server accessible at http://localhost:${config.port}`);
+        console.log(`🌐 MakemyPackages Package Server accessible at http://localhost:${config.port}`);
     });
 }
 // Graceful shutdown
-const shutdown = () => {
-    console.log("Shutting down gracefully...");
+const shutdown = (signal) => {
+    console.log(`\n${signal} received. Shutting down gracefully...`);
     process.exit(0);
 };
-process.on("SIGTERM", shutdown);
-process.on("SIGINT", shutdown);
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));
+// Global error handlers
+process.on("uncaughtException", (error) => {
+    console.error("❌ CRITICAL: Uncaught Exception:", error);
+    // In a real production app, you might want to exit after logging
+    // but let's keep it running as per user preference for now
+});
+process.on("unhandledRejection", (reason, promise) => {
+    console.error("❌ CRITICAL: Unhandled Rejection at:", promise, "reason:", reason);
+});
 startServer();

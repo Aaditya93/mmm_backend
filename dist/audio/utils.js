@@ -7,7 +7,6 @@ export function saveBinaryFile(fileName, content) {
                 reject(err);
                 return;
             }
-            console.log(`File ${fileName} saved to file system.`);
             resolve();
         });
     });

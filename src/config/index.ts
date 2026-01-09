@@ -1,5 +1,4 @@
 import dotenv from "dotenv";
-import path from "path";
 
 dotenv.config();
 
@@ -23,9 +22,7 @@ export const config = {
   },
   google: {
     apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
-    paidApiKey:
-      process.env.GOOGLE_GENERATIVE_AI_API_KEY_PAID ||
-      process.env.GOOGLE_GENERATIVE_AI_API_KEY,
+    paidApiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY_PAID,
   },
 };
 

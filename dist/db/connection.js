@@ -9,7 +9,6 @@ async function dbConnect() {
             throw new Error("MONGODB_URI is not defined");
         }
         await mongoose.connect(config.mongodbUri);
-        console.log("Connected to MongoDB");
     }
     catch (error) {
         console.error("MongoDB connection error:", error);
