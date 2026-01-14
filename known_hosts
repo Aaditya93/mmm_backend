@@ -1,16 +1,8 @@
-# ec2-43-204-218-207.ap-south-1.compute.amazonaws.com:22 SSH-2.0-OpenSSH_9.6p1 Ubuntu-3ubuntu13.14
-# ec2-43-204-218-207.ap-south-1.compute.amazonaws.com:22 SSH-2.0-OpenSSH_9.6p1 Ubuntu-3ubuntu13.14
-|1|nGPF74YVwuH1npFWEBr/dFmEniM=|QWlD7Ih4PDZ4qTKYK/9sVONv7uQ= ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDIE1/oXyxH6XJaiRJ4L0XLwIqVF3RaAo2jXAeFW0k1RIlkqy+hnIDmrkKQxtq3OJz7qdQZ+Pw8fRGKFEzJpm91mpU9uwwdwq83NI5/EYhC5bPis47lO99mIkkwa4xhR2TOdWSUv3Ao1NrvcYTypIbD/mnKFEhmMEbfiWQpGU0NKVR/24rcE351pcMKJLuUj8gmbLfXUEwjaJpuG8mvVKUjEo+jqcBOg62paQlPNk89L2+wtxlarSFvlDDdgCnXp24yQdZoyKXWBZOXSthnnRbOGcxYrsux/rjuLg1AhCptiYo4QpAygRTDewfGKcVWaj70i0Xnz83p8cgWWycULRnxbZ01XUhbiXicud79I9c2PlsnKyMFqWdMVA1sfkSUmMmieOwgfJEJnTBNJIU9Yy3sJS+/cKh5PRm9Sf20N36bA8lFI/30uBJhzTkp5D0givpUPgbOD4SmmCUolOFWu+Cek2nui1h8N61Af1ujlHrJQ5/enuvrZz71G4fAy8uq518=
-# ec2-43-204-218-207.ap-south-1.compute.amazonaws.com:22 SSH-2.0-OpenSSH_9.6p1 Ubuntu-3ubuntu13.14
-|1|/pZ/J8uphFhR6LvOOkQVylSetdw=|c1YoTvxmVGu+Rg2kiMfGVWhy1F0= ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBMIgzip9k+jKJxQoQ7lVwb7JxuKlt/ycjtM2oWfbYaVTZVkKWimMIpgNKi/UewrajR8QGabBxtPP6HLuYd3HBdY=
-# ec2-43-204-218-207.ap-south-1.compute.amazonaws.com:22 SSH-2.0-OpenSSH_9.6p1 Ubuntu-3ubuntu13.14
-|1|Pm7ws2Kvp9LrAgoi8cofr4F30xs=|t0Qdcj5nHWJRjX/4kzHddffJJe0= ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIE46a64U+Rm6opY16b/F/qbtnGESV7MWi286lhEggU6l
-# ec2-43-204-218-207.ap-south-1.compute.amazonaws.com:22 SSH-2.0-OpenSSH_9.6p1 Ubuntu-3ubuntu13.14
-# ec2-3-110-212-189.ap-south-1.compute.amazonaws.com:22 SSH-2.0-OpenSSH_9.6p1 Ubuntu-3ubuntu13.14
-ec2-3-110-212-189.ap-south-1.compute.amazonaws.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCrbx/AH0ka2oWp+Xc6Hh7Hl2waX4bGbz+lwUzGx1HG3yT/srPMBRXLah1Wlc5Pe4kjrHgkIEVHIDCJgd4Yxk0L/LaGacfjk/neLVQbSXyxpGk8WrDRe8KKULNA1DbGbDP+COD5iuTn6QPgaUIA1YjFtSOjvQeNoEZiUiv6eCWb7b8XfC6zc0eh8iZJqtzn7gLI+HduneFVoa3LvrdqUy/Qm0v5q6MNnSgNq60fQzvuGDhuxGwYqPDzUk4bfSCgt0X8tSd4+5+IwCfRDs7GsaXyljlJpjB+DTh9dgs+Rw+Qp44nn/wrUjo6yDT3mBI1iQC4zahrigVMza+C3rPNsgSGHcqiE54cv3TSfiOPUnc3PcW91T6wUdZtEn3ZMS+ZnouSGPNCoLAqBo15lP1+64huu/7CiMkbAWru/pxsa0vExdlQkzv9ccRgL5EIs1p9vxYyI5CiUmN1OP0D7h8rqwd7DYkZ81KH71esDMFUiiyR3HR8/HoTx79Pe4ejo4lz7vE=
-# ec2-3-110-212-189.ap-south-1.compute.amazonaws.com:22 SSH-2.0-OpenSSH_9.6p1 Ubuntu-3ubuntu13.14
-ec2-3-110-212-189.ap-south-1.compute.amazonaws.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBKGpHzgfVlBSdp9aEJhr7Wr78kYHxMyMNFsGS2tH4vzitYZ3QHzUMh8nMlW0iQRlSqdeFYYRYamEJ7dmqE3c4Iw=
-# ec2-3-110-212-189.ap-south-1.compute.amazonaws.com:22 SSH-2.0-OpenSSH_9.6p1 Ubuntu-3ubuntu13.14
-ec2-3-110-212-189.ap-south-1.compute.amazonaws.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIaXWpyvENidx64A6JuqQMZ2ZMYDZE0ZELxJ5Doyzptb
-# ec2-3-110-212-189.ap-south-1.compute.amazonaws.com:22 SSH-2.0-OpenSSH_9.6p1 Ubuntu-3ubuntu13.14
-# ec2-3-110-212-189.ap-south-1.compute.amazonaws.com:22 SSH-2.0-OpenSSH_9.6p1 Ubuntu-3ubuntu13.14
+# ec2-13-203-216-210.ap-south-1.compute.amazonaws.com:22 SSH-2.0-OpenSSH_9.6p1 Ubuntu-3ubuntu13.14
+# ec2-13-203-216-210.ap-south-1.compute.amazonaws.com:22 SSH-2.0-OpenSSH_9.6p1 Ubuntu-3ubuntu13.14
+ec2-13-203-216-210.ap-south-1.compute.amazonaws.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCOSyangn9SuL3cch6ROJBK3R3Hf+i9RPHDEJ49rfzcC0dmvdUsEF/NKNQAQunhYRcy9wyQCmbekHdFjC+k7LYr91SZMc8RST1NhfOT0WkUdoMT9ZJsswdIpu4oK0vYW3akkjeNsP76H3NOpyXQnqPR81A70T7qvoTvo0pUncZfbJ4fFl4z/kfGfx9QTNbuhK5n2vyW5d5mXA02Uunei/kR6ByXbG1yUQRbVLsfCXeZirkWkH+AnzzNng+R8fk+dburVq62qwP/zL/gGsAuOeBqpK5lmshYN3pbuoXUrJCEcPOiO0yi/HDA+ElACIYm8EbW2E8Z6U77sfvQXFarE3cXXW7qWmhp4Jdd8aZ4Pa4tZgrBxaDiqKTtjIyf0c90vQomA0IHSHIVNyeFUkxxeXBMRH8kOUaHAoisi16zRCAn6WSS7AMJjSjIMOKWsw23yJRSNScKM0iB1sVS+nqfJ7R3j0NUcPOBXYWeIOLy8OcfN8MjxIttNSN0HIi8Y6rMvNc=
+# ec2-13-203-216-210.ap-south-1.compute.amazonaws.com:22 SSH-2.0-OpenSSH_9.6p1 Ubuntu-3ubuntu13.14
+ec2-13-203-216-210.ap-south-1.compute.amazonaws.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBFXf0TBhM3ym8xtH+ntqDFBG0dIODof40AgtAjc20Qh5Md+22zLVNy+K2HGFFPKp0/2Zrtof7hL/zJoSLDITBVA=
+# ec2-13-203-216-210.ap-south-1.compute.amazonaws.com:22 SSH-2.0-OpenSSH_9.6p1 Ubuntu-3ubuntu13.14
+ec2-13-203-216-210.ap-south-1.compute.amazonaws.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJ0KlZusR1NPc3uKaZ//Tt8ab9sKTIGhx1gAVb6kTM7i
+# ec2-13-203-216-210.ap-south-1.compute.amazonaws.com:22 SSH-2.0-OpenSSH_9.6p1 Ubuntu-3ubuntu13.14

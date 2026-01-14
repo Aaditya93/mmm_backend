@@ -11,14 +11,17 @@ export interface SSLOptions {
 export function getSSLOptions(): SSLOptions | null {
   if (!config.useSSL) return null;
 
-  const keyPath = config.ssl.keyPath || path.join(config.ssl.dir, "privkey.pem");
-  const certPath = config.ssl.certPath || path.join(config.ssl.dir, "fullchain.pem");
+  const keyPath =
+    config.ssl.keyPath || path.join(config.ssl.dir, "privkey.pem");
+  const certPath =
+    config.ssl.certPath || path.join(config.ssl.dir, "fullchain.pem");
 
   if (!fs.existsSync(keyPath) || !fs.existsSync(certPath)) {
     console.log("🔒 SSL certificates not found.");
 
     if (config.nodeEnv === "production") {
       console.error("❌ Production SSL certificates are required!");
+
       return null;
     } else {
       console.log("🔧 Development mode: Creating self-signed certificates...");
