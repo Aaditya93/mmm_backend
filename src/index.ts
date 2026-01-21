@@ -1,3 +1,4 @@
+import "newrelic";
 import http from "http";
 import https from "https";
 import express from "express";
@@ -18,7 +19,7 @@ async function startServer() {
       https.createServer(sslOptions, app).listen(config.httpsPort, () => {
         console.log(`✅ HTTPS Server running on port ${config.httpsPort}`);
         console.log(
-          `🔒 Secure MakemyPackages Email Scanner Server accessible at api.makemypackages.com`
+          `🔒 Secure MakemyPackages Email Scanner Server accessible at api.makemypackages.com`,
         );
       });
 
@@ -44,7 +45,7 @@ async function startServer() {
       }
     } else {
       console.log(
-        "🔧 SSL disabled or failed to initialize, starting HTTP server only"
+        "🔧 SSL disabled or failed to initialize, starting HTTP server only",
       );
       startHttpServer();
     }
@@ -59,7 +60,7 @@ function startHttpServer() {
   httpServer.listen(config.port, "0.0.0.0", () => {
     console.log(`✅ HTTP Server running on port ${config.port}`);
     console.log(
-      `🌐 MakemyPackages Package Server accessible at http://localhost:${config.port}`
+      `🌐 MakemyPackages Package Server accessible at http://localhost:${config.port}`,
     );
   });
 }
@@ -81,7 +82,12 @@ process.on("uncaughtException", (error) => {
 });
 
 process.on("unhandledRejection", (reason, promise) => {
-  console.error("❌ CRITICAL: Unhandled Rejection at:", promise, "reason:", reason);
+  console.error(
+    "❌ CRITICAL: Unhandled Rejection at:",
+    promise,
+    "reason:",
+    reason,
+  );
 });
 
 startServer();

@@ -1,8 +1,9 @@
+import "newrelic";
 import express from "express";
 import cors from "cors";
 import routes from "./routes/index.js";
 import { errorHandler } from "./middleware/error.js";
-import "newrelic";
+
 const app = express();
 
 app.use(
