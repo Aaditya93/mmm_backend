@@ -44,7 +44,7 @@ export async function generateAudioSummary(
     },
   };
 
-  const model = "gemini-2.5-flash-preview-tts";
+  const model = "gemini-flash-lite-latest";
   const contents = [
     {
       role: "user",

@@ -1,0 +1,52 @@
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { v4 as uuidv4 } from "uuid";
+import { readFile } from "fs/promises";
+import path from "path";
+import { config } from "../config/index.js";
+const s3Client = new S3Client({
+    region: config.aws.region,
+    credentials: {
+        accessKeyId: config.aws.accessKeyId,
+        secretAccessKey: config.aws.secretAccessKey,
+    },
+});
+export async function uploadAudioToS3(filePath, bucketName, customMimeType) {
+    try {
+        const fileBuffer = await readFile(filePath);
+        // Get file extension to determine mime type and S3 key
+        const fileExtension = path.extname(filePath).toLowerCase();
+        let mimeType = customMimeType;
+        let s3KeyExtension = fileExtension;
+        // Set appropriate mime type based on file extension
+        if (!mimeType) {
+            switch (fileExtension) {
+                case ".mp3":
+                    mimeType = "audio/mpeg";
+                    s3KeyExtension = ".mp3";
+                    break;
+                case ".wav":
+                    mimeType = "audio/wav";
+                    s3KeyExtension = ".wav";
+                    break;
+                default:
+                    mimeType = "audio/mpeg"; // Default to MP3
+                    s3KeyExtension = ".mp3";
+            }
+        }
+        const fileKey = `audio-summaries/${uuidv4()}${s3KeyExtension}`;
+        const command = new PutObjectCommand({
+            Bucket: bucketName,
+            Key: fileKey,
+            Body: fileBuffer,
+            ContentType: mimeType,
+        });
+        await s3Client.send(command);
+        // Return public URL
+        const publicUrl = `https://${bucketName}.s3.${process.env.AWS_REGION || "us-east-1"}.amazonaws.com/${fileKey}`;
+        return publicUrl;
+    }
+    catch (error) {
+        console.error("Error uploading to S3:", error);
+        throw error;
+    }
+}

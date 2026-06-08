@@ -1,8 +1,10 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
 import { config } from "../config/index.js";
-const genAI = new GoogleGenerativeAI(config.google.paidApiKey || "");
+const genAI = new GoogleGenAI({
+    apiKey: config.google.paidApiKey || config.google.apiKey || "",
+});
 /**
- * Generates a vector embedding for a given text using Google's embedding-001 model.
+
  * @param text The input text to embed.
  * @returns A promise that resolves to an array of numbers representing the vector embedding.
  */
@@ -11,15 +13,15 @@ export async function generateEmbedding(text) {
         return [];
     }
     try {
-        const model = genAI.getGenerativeModel({ model: "embedding-001" });
-        const result = await model.embedContent(text);
-        const embedding = result.embedding;
-        if (embedding && embedding.values) {
+        const result = await genAI.models.embedContent({
+            model: "gemini-embedding-2",
+            contents: [text],
+        });
+        const embedding = result.embeddings?.[0];
+        if (embedding?.values?.length) {
             return embedding.values;
         }
-        else {
-            throw new Error("No embedding data returned from Google GenAI API.");
-        }
+        throw new Error("No embedding data returned from Google GenAI API.");
     }
     catch (error) {
         console.error("Error generating embedding:", error);

@@ -1,7 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import * as dotenv from "dotenv";
-dotenv.config();
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENERATIVE_AI_API_KEY_PAID || "");
+import { config } from "../config/index.js";
+const genAI = new GoogleGenerativeAI(config.google.paidApiKey || "");
 /**
 
  * @param text The input text to embed.
@@ -9,7 +8,6 @@ const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENERATIVE_AI_API_KEY_PA
  */
 export async function generateEmbedding(text) {
     if (!text || text.trim() === "") {
-        console.warn("Embedding generation skipped: input text is empty.");
         return [];
     }
     try {
