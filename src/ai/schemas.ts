@@ -14,47 +14,57 @@ export function getMarketingSchema(): any {
     properties: {
       title: {
         type: "string",
+        maxLength: 90,
         description:
-          "Create an irresistible, SEO-optimized title that sparks wanderlust. Use power words like 'Ultimate', 'Exclusive', 'Breathtaking'. Include destination and unique selling points.",
+          "SEO-friendly travel title, max 14 words. Include destination and the strongest package angle.",
       },
       keywords: {
         type: "array",
-        items: { type: "string" },
+        minItems: 5,
+        maxItems: 8,
+        items: { type: "string", maxLength: 40 },
         description:
-          "SEO-focused keywords that travelers search for: destination names, activities, experiences, attractions.",
+          "5-8 searchable destination, attraction, or experience terms.",
       },
       highlights: {
         type: "array",
-        items: { type: "string" },
+        minItems: 3,
+        maxItems: 5,
+        items: { type: "string", maxLength: 90 },
         description:
-          "Irresistible selling points that create urgency and desire. Include exclusive experiences and luxury amenities.",
+          "3-5 short selling points, each under 14 words. Be specific and benefit-first.",
       },
       description: {
         type: "string",
+        maxLength: 650,
         description:
-          "Write a captivating 200+ word description that tells a story and paints a vivid picture. Start with an emotional hook, describe transformative experiences, and end with a compelling call-to-action.",
+          "60-90 words. Lead with the traveler benefit, then include specific proof from the itinerary.",
       },
       audioSummary: {
         type: "string",
+        maxLength: 650,
         description:
-          "A conversational audio script summarizing the package in simple words, alternating between Speaker 1 and Speaker 2, highlighting key attractions, activities, and experiences to engage listeners.",
+          "4-6 short lines, max 90 words total, alternating between Speaker 1 and Speaker 2.",
       },
       summary: {
         type: "string",
+        maxLength: 220,
         description:
           "Single sentence (<30 words) including: tour type (e.g. Family Adventure / Luxury Honeymoon / Cultural Explorer), duration (X days / Y nights), hotel category (e.g. 3-Star / Mixed 4–5-Star), destination, 1–2 top highlights. Optimized for semantic vector search.",
       },
       locations: {
         type: "array",
-        items: { type: "string" },
+        maxItems: 8,
+        items: { type: "string", maxLength: 60 },
         description:
-          "Must-visit destinations that create excitement. Include iconic landmarks and hidden gems.",
+          "Key places from the PDF, max 8. Use concise place names.",
       },
       activities: {
         type: "array",
-        items: { type: "string" },
+        maxItems: 10,
+        items: { type: "string", maxLength: 60 },
         description:
-          "Compelling activities that differentiate this package. Focus on unique experiences and cultural immersions.",
+          "Top 8-10 concise activity names from the PDF.",
       },
     },
   };
@@ -73,6 +83,7 @@ export function getItinerarySchema(): any {
           properties: {
             name: {
               type: "string",
+              maxLength: 80,
               description: "Name of the hotel or accommodation package.",
             },
             stars: {
@@ -81,11 +92,13 @@ export function getItinerarySchema(): any {
             },
             roomType: {
               type: "string",
+              maxLength: 80,
               description: "Type of room (e.g., Deluxe, Suite, Twin Share).",
             },
             details: {
               type: "string",
-              description: "Description of the accommodation.",
+              maxLength: 180,
+              description: "One concise factual sentence about the accommodation.",
             },
           },
         },
@@ -98,16 +111,18 @@ export function getItinerarySchema(): any {
 
           properties: {
             type: { type: "string" },
-            title: { type: "string" },
+            title: { type: "string", maxLength: 90 },
             vehicle: {
               type: "string",
+              maxLength: 60,
               description:
-                "Specify premium options or vehicle types like 'SUV', 'Sedan', 'Private Yacht'.",
+                "Use the PDF vehicle value when present. Otherwise infer a simple vehicle type.",
             },
             details: {
               type: "string",
+              maxLength: 180,
               description:
-                "Highlight comfort features, scenic routes, and convenience.",
+                "One concise factual sentence. Do not add comfort claims unless present.",
             },
             shared: {
               type: "boolean",
@@ -136,8 +151,9 @@ export function getDailyItinerarySchema(): any {
             title: { type: "string" },
             description: {
               type: "string",
+              maxLength: 420,
               description:
-                "Write immersive 100+ word descriptions for each day.",
+                "35-60 words. Summarize the main day plan only.",
             },
             meals: {
               type: "array",
@@ -160,10 +176,10 @@ export function getDailyItinerarySchema(): any {
                   },
                   description: {
                     type: "string",
-                    minLength: 50,
-                    maxLength: 600,
+                    minLength: 30,
+                    maxLength: 240,
                     description:
-                      "One paragraph (3-4 short sentences) describing what guests can expect. No markdown, no lists, no extra quoting. Keep concise.",
+                      "1-2 short sentences describing what guests see or do. No markdown, lists, or extra quoting.",
                   },
                 },
               },
