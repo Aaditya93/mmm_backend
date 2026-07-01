@@ -6,7 +6,7 @@ import { getMarketingSchema, getItinerarySchema, getDailyItinerarySchema, getPri
 import { createMarketingPrompt, createItineraryPrompt, createDailyItineraryPrompt, createPricingPrompt, } from "./prompts.js";
 export async function executeExtraction(fileBuffer, prompt, generationConfig, schema, mimeType = "application/pdf") {
     const genAI = initializeGeminiClient();
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
+    const model = genAI.getGenerativeModel({ model: "gemini-3.1-flash-lite" });
     const genOptions = {
         temperature: generationConfig.temperature,
         topP: generationConfig.topP,

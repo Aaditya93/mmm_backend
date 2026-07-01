@@ -58,7 +58,7 @@ export function createItineraryPrompt() {
     3. shared: decode NOTE values exactly: PRV/PVT/private -> false, SIC -> true, missing or "-" -> false.
     4. vehicle: use the PDF value when present. Otherwise infer a simple vehicle type.
     5. details: one concise factual sentence. Do not add luxury or comfort claims unless present.
-    6. Never add flights to transportation.
+    6. Never add flights to transportation. 
 
     Strictly follow the JSON schema.
 
@@ -165,6 +165,7 @@ export function createPricingPrompt() {
     7. Flights: include only explicitly mentioned flights. Preserve airline, number, times, baggage, layovers, price, and currency when present.
     8. Visa: extract visa costs and concise details. If type is missing, use Adult.
     9. Inclusions, exclusions, and notes: list all clear items. Do not put visa information in notes.
+    10. Flights doesn't exist don't need to add empty flight array. Only add flights if you have full flight information.
 
     Strictly follow the JSON schema.
 
