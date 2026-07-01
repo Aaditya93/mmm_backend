@@ -12,7 +12,7 @@ export function getCreativeGenerationConfig() {
         temperature: 0.7,
         topP: 0.9,
         topK: 40,
-        maxOutputTokens: 3500,
+        maxOutputTokens: 10000,
     };
 }
 export function getDeterministicGenerationConfig() {
@@ -20,6 +20,6 @@ export function getDeterministicGenerationConfig() {
         temperature: 0.3,
         topP: 0.8,
         topK: 40,
-        maxOutputTokens: 5000,
+        maxOutputTokens: 10000,
     };
 }
